@@ -62,7 +62,7 @@ jobs:
          tflint-version: ${{ env.TFLINT_VERSION }}
          args: 'terraform_validate --color=always --show-diff-on-failure --files $(ls *.tf)'
    
-   preCommitOnMaxVersion:
+  preCommitOnMaxVersion:
      name: pre-commit on max version
      runs-on: ubuntu-linux
      needs: collectInputs

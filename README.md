@@ -16,6 +16,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_parameters"></a> [parameters](#module\_parameters) | shamimice03/ssm-parameter/aws | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | shamimice03/vpc/aws | n/a |
 
 ## Resources

@@ -5,7 +5,6 @@ locals {
 #################################################
 #   VPC
 #################################################
-
 module "vpc" {
 
   source = "shamimice03/vpc/aws"
@@ -17,7 +16,6 @@ module "vpc" {
   public_subnet_cidr  = ["10.3.0.0/20", "10.3.16.0/20", "10.3.32.0/20"]
   private_subnet_cidr = ["10.3.48.0/20", "10.3.64.0/20", "10.3.80.0/20"]
   db_subnet_cidr      = ["10.3.96.0/20", "10.3.112.0/20", "10.3.128.0/20"]
-
 
   enable_dns_hostnames      = true
   enable_dns_support        = true
@@ -140,56 +138,6 @@ resource "aws_security_group" "rds_sg" {
 #   special = true
 # }
 
-#################################################
-#       DB Parameters
-#################################################
-module "db_parameters" {
-
-  source = "shamimice03/ssm-parameter/aws"
-
-  parameters = [
-    {
-      name        = "/wordpress/db/DBUser"
-      type        = "String"
-      description = "Database Username"
-      value       = module.rds.db_instance_username
-      tags = {
-        "Name" = "${local.project_name}"
-      }
-    },
-    {
-      name        = "/wordpress/db/DBName"
-      type        = "String"
-      description = "Initial Database Name"
-      value       = module.rds.db_name
-      tags = {
-        "Name" = "${local.project_name}"
-      }
-    },
-    {
-      name        = "/wordpress/db/DBEndpoint"
-      type        = "String"
-      description = "Parameter for webapp"
-      value       = module.rds.db_instance_endpoint
-      tags = {
-        "Name" = "webapp-params"
-      }
-    },
-    {
-      name        = "/wordpress/db/DBPassword"
-      type        = "SecureString"
-      description = "Database password"
-      value       = module.rds.db_instance_password
-      key_alias   = "alias/aws/ssm"
-      tags = {
-        "Name" = "${local.project_name}"
-      }
-    },
-  ]
-
-  depends_on = [module.rds]
-}
-
 ####################################
 #    RDS
 ####################################
@@ -249,4 +197,167 @@ module "rds" {
 
 }
 
+####################################
+#   EFS
+####################################
+resource "aws_efs_file_system" "efs" {
+  creation_token = "${local.project_name}-efs"
 
+  encrypted        = true
+  throughput_mode  = "bursting"
+  performance_mode = "generalPurpose"
+
+  lifecycle_policy {
+    transition_to_ia = "AFTER_30_DAYS"
+  }
+  tags = {
+    Name = "${local.project_name}-efs"
+  }
+}
+
+resource "aws_efs_mount_target" "efs_mount" {
+  count           = length(module.vpc.private_subnet_id)
+  file_system_id  = aws_efs_file_system.efs.id
+  subnet_id       = module.vpc.private_subnet_id[count.index]
+  security_groups = [aws_security_group.efs_sg.id]
+}
+
+#################################################
+#       DB Parameters
+#################################################
+module "db_parameters" {
+
+  source = "shamimice03/ssm-parameter/aws"
+
+  parameters = [
+    {
+      name        = "/wordpress/db/DBUser"
+      type        = "String"
+      description = "Database Username"
+      value       = module.rds.db_instance_username
+      tags = {
+        "Name" = "${local.project_name}"
+      }
+    },
+    {
+      name        = "/wordpress/db/DBName"
+      type        = "String"
+      description = "Initial Database Name"
+      value       = module.rds.db_name
+      tags = {
+        "Name" = "${local.project_name}"
+      }
+    },
+    {
+      name        = "/wordpress/db/DBEndpoint"
+      type        = "String"
+      description = "Parameter for webapp"
+      value       = module.rds.db_instance_endpoint
+      tags = {
+        "Name" = "webapp-params"
+      }
+    },
+    {
+      name        = "/wordpress/db/DBPassword"
+      type        = "SecureString"
+      description = "Database password"
+      value       = module.rds.db_instance_password
+      key_alias   = "alias/aws/ssm"
+      tags = {
+        "Name" = "${local.project_name}"
+      }
+    },
+  ]
+}
+
+module "efs_parameters" {
+
+  source = "shamimice03/ssm-parameter/aws"
+
+  parameters = [
+    {
+      name        = "/wordpress/efs/EFSID"
+      type        = "String"
+      description = "The ID that identifies the file system"
+      value       = aws_efs_file_system.efs.id
+      tags = {
+        "Name" = "${local.project_name}"
+      }
+    },
+  ]
+}
+#################################################
+#       IAM Role
+#################################################
+data "aws_iam_policy_document" "instance_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "role" {
+  name               = "${local.project_name}-Role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy.json
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
+  ]
+}
+
+resource "aws_iam_instance_profile" "instance_role" {
+  name = "${local.project_name}-InstanceRole"
+  role = aws_iam_role.role.name
+}
+
+#################################################
+#       Demo EC2 on public
+#################################################
+resource "aws_security_group" "demo_sg" {
+  name        = "${local.project_name}-demo-sg"
+  description = "Allow inbound traffic"
+  vpc_id      = module.vpc.vpc_id
+
+  dynamic "ingress" {
+    for_each = [22]
+    iterator = port
+    content {
+      description = "Traffic from anywhere"
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+module "ec2_instance" {
+  source = "terraform-aws-modules/ec2-instance/aws"
+
+  name = "access-test"
+
+  instance_type          = "t2.micro"
+  key_name               = "ec2-access"
+  monitoring             = false
+  vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
+  subnet_id              = module.vpc.public_subnet_id[0]
+  iam_instance_profile   = aws_iam_instance_profile.instance_role.name
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}

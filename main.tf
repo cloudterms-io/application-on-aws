@@ -130,14 +130,6 @@ resource "aws_security_group" "rds_sg" {
   }
 }
 
-#################################################
-#       DB Random password
-#################################################
-# resource "random_password" "password" {
-#   length  = 16
-#   special = true
-# }
-
 ####################################
 #    RDS
 ####################################
@@ -251,10 +243,28 @@ module "db_parameters" {
     {
       name        = "/wordpress/db/DBEndpoint"
       type        = "String"
-      description = "Parameter for webapp"
+      description = "Database Instance Endpoint"
       value       = module.rds.db_instance_endpoint
       tags = {
-        "Name" = "webapp-params"
+        "Name" = "${local.project_name}"
+      }
+    },
+    {
+      name        = "/wordpress/db/DBHostname"
+      type        = "String"
+      description = "Database Instance Hostname"
+      value       = module.rds.db_instance_address
+      tags = {
+        "Name" = "${local.project_name}"
+      }
+    },
+    {
+      name        = "/wordpress/db/DBPort"
+      type        = "String"
+      description = "Database Instance Port"
+      value       = module.rds.db_instance_port
+      tags = {
+        "Name" = "${local.project_name}"
       }
     },
     {
@@ -270,6 +280,9 @@ module "db_parameters" {
   ]
 }
 
+#################################################
+#       EFS Parameters
+#################################################
 module "efs_parameters" {
 
   source = "shamimice03/ssm-parameter/aws"
@@ -286,6 +299,7 @@ module "efs_parameters" {
     },
   ]
 }
+
 #################################################
 #       IAM Role
 #################################################

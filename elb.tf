@@ -17,9 +17,7 @@ module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
   name_prefix = "cloud-"
-
   load_balancer_type = "application"
-
   vpc_id          = module.vpc.vpc_id
   subnets         = module.vpc.public_subnet_id
   security_groups = [aws_security_group.alb_sg.id]
@@ -67,3 +65,24 @@ module "alb" {
   }
 }
 
+module "alb_route53_record_1" {
+  source                 = "./modules/alb-route53"
+  zone_name              = "kubecloud.net."
+  record_name            = "demo.kubecloud.net"
+  record_type            = "A"
+  lb_dns_name            = module.alb.lb_dns_name
+  lb_zone_id             = module.alb.lb_zone_id
+  private_zone           = false
+  evaluate_target_health = true
+}
+
+module "alb_route53_record_2" {
+  source                 = "./modules/alb-route53"
+  zone_name              = "kubecloud.net."
+  record_name            = "www.demo.kubecloud.net"
+  record_type            = "A"
+  lb_dns_name            = module.alb.lb_dns_name
+  lb_zone_id             = module.alb.lb_zone_id
+  private_zone           = false
+  evaluate_target_health = true
+}

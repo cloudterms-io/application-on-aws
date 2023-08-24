@@ -27,9 +27,9 @@ module "asg" {
   desired_capacity = 2
   min_size         = 2
   max_size         = 4
-  
+
   target_group_arns = module.alb.target_group_arns
-  
+
   wait_for_capacity_timeout = 0
   health_check_type         = "ELB"
   health_check_grace_period = 300

@@ -14,6 +14,8 @@ resource "aws_launch_template" "this" {
   instance_type = "t2.micro"
   key_name      = "ec2-access"
 
+  update_default_version = true # Make latest version = default version
+
   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
 
 

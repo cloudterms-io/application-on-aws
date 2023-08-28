@@ -20,6 +20,7 @@ module "launch_template" {
   update_default_version      = true
   vpc_security_group_ids      = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
   iam_instance_profile_name   = module.instance_profile.profile_name
+  device_name                 = "/dev/sda1"
   volume_size                 = 20
   volume_type                 = "gp2"
   delete_on_termination       = true
@@ -32,4 +33,3 @@ module "launch_template" {
     Environment = "prod"
   }
 }
-

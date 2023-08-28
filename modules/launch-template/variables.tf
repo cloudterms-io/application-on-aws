@@ -46,6 +46,12 @@ variable "vpc_security_group_ids" {
   default     = []
 }
 
+variable "device_name" {
+  description = "The name of the device to mount"
+  type        = string
+  default     = "/dev/sda1"
+}
+
 variable "volume_type" {
   description = "The volume type. Can be one of standard, gp2, gp3, io1, io2, sc1 or st1"
   type        = string

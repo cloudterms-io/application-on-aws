@@ -19,7 +19,7 @@ module "launch_template" {
   key_name                    = "ec2-access"
   update_default_version      = true
   vpc_security_group_ids      = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
-  iam_instance_profile_name   = aws_iam_instance_profile.instance_role.name
+  iam_instance_profile_name   = module.instance_profile.profile_name
   volume_size                 = 20
   volume_type                 = "gp2"
   delete_on_termination       = true

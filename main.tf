@@ -339,7 +339,7 @@ module "ec2_instance" {
   monitoring             = false
   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
   subnet_id              = module.vpc.public_subnet_id[0]
-  iam_instance_profile   = aws_iam_instance_profile.instance_role.name
+  iam_instance_profile   = module.instance_profile.profile_name
 
   tags = {
     Terraform   = "true"

@@ -11,7 +11,7 @@ data "aws_ami" "amazonlinux2" {
 module "launch_template" {
   source = "./modules/launch-template"
 
-  create = false
+  create = true
 
   launch_template_name_prefix = "cloud"
   image_id                    = data.aws_ami.amazonlinux2.id

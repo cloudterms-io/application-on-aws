@@ -16,7 +16,7 @@
 
 module "asg" {
   source = "terraform-aws-modules/autoscaling/aws"
-  create = false
+  create = true
 
   name                    = "cloud"
   create_launch_template  = false

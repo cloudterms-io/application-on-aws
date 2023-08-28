@@ -50,7 +50,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Name of the role | `string` | `"cloud-app"` | no |
+| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Name of the role | `string` | `"aws-ref-architecture"` | no |
 
 ## Outputs
 

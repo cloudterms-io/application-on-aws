@@ -26,7 +26,7 @@ EFSID=$(aws ssm get-parameters --region $REGION --names /wordpress/efs/EFSID --q
 EFSID=$(echo $EFSID | sed -e 's/^"//' -e 's/"$//')
 
 # Install the application dependencies you need for WordPress
-sudo yum install -y httpd wget 
+sudo yum install -y httpd wget
 sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
 
 # Download and install Composer globally

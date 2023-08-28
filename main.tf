@@ -1,7 +1,3 @@
-locals {
-  project_name = "wordpress-on-cloud"
-}
-
 #################################################
 #   VPC
 #################################################
@@ -32,7 +28,7 @@ module "vpc" {
 #   Security groups
 #################################################
 resource "aws_security_group" "alb_sg" {
-  name        = "${local.project_name}-alb-sg"
+  name        = format("%s-alb-sg", var.project_name)
   description = "Allow inbound traffic to ALB"
   vpc_id      = module.vpc.vpc_id
 
@@ -57,7 +53,7 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_security_group" "public_sg" {
-  name        = "${local.project_name}-public-sg"
+  name        = format("%s-public-sg", var.project_name)
   description = "Allow inbound traffic from ALB"
   vpc_id      = module.vpc.vpc_id
 
@@ -82,7 +78,7 @@ resource "aws_security_group" "public_sg" {
 }
 
 resource "aws_security_group" "efs_sg" {
-  name        = "${local.project_name}-efs-sg"
+  name        = format("%s-efs-sg", var.project_name)
   description = "Allow inbound traffic from public sg"
   vpc_id      = module.vpc.vpc_id
 
@@ -107,7 +103,7 @@ resource "aws_security_group" "efs_sg" {
 }
 
 resource "aws_security_group" "rds_sg" {
-  name        = "${local.project_name}-rds-sg"
+  name        = format("%s-rds-sg", var.project_name)
   description = "Allow inbound traffic from public sg"
   vpc_id      = module.vpc.vpc_id
 
@@ -139,11 +135,11 @@ module "rds" {
 
   # DB Subnet Group
   create_db_subnet_group = true
-  db_subnet_group_name   = "${local.project_name}-db-subnet"
+  db_subnet_group_name   = format("%s-db-subnet", var.project_name)
   db_subnets             = module.vpc.db_subnet_id
 
   # Identify DB instance
-  db_identifier = "${local.project_name}-db-1"
+  db_identifier = format("%s-db-1", var.project_name)
 
   # Create Initial Database
   db_name = "mydb"
@@ -193,7 +189,7 @@ module "rds" {
 #   EFS
 ####################################
 resource "aws_efs_file_system" "efs" {
-  creation_token = "${local.project_name}-efs"
+  creation_token = var.project_name
 
   encrypted        = true
   throughput_mode  = "bursting"
@@ -203,7 +199,7 @@ resource "aws_efs_file_system" "efs" {
     transition_to_ia = "AFTER_30_DAYS"
   }
   tags = {
-    Name = "${local.project_name}-efs"
+    Name = "${var.project_name}-efs"
   }
 }
 
@@ -228,7 +224,7 @@ module "db_parameters" {
       description = "Database Username"
       value       = module.rds.db_instance_username
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
     {
@@ -237,7 +233,7 @@ module "db_parameters" {
       description = "Initial Database Name"
       value       = module.rds.db_name
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
     {
@@ -246,7 +242,7 @@ module "db_parameters" {
       description = "Database Instance Endpoint"
       value       = module.rds.db_instance_endpoint
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
     {
@@ -255,7 +251,7 @@ module "db_parameters" {
       description = "Database Instance Hostname"
       value       = module.rds.db_instance_address
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
     {
@@ -264,7 +260,7 @@ module "db_parameters" {
       description = "Database Instance Port"
       value       = module.rds.db_instance_port
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
     {
@@ -274,7 +270,7 @@ module "db_parameters" {
       value       = module.rds.db_instance_password
       key_alias   = "alias/aws/ssm"
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
   ]
@@ -294,7 +290,7 @@ module "efs_parameters" {
       description = "The ID that identifies the file system"
       value       = aws_efs_file_system.efs.id
       tags = {
-        "Name" = "${local.project_name}"
+        "Name" = var.project_name
       }
     },
   ]
@@ -305,7 +301,7 @@ module "efs_parameters" {
 #       Demo EC2 on publics
 #################################################
 resource "aws_security_group" "demo_sg" {
-  name        = "${local.project_name}-demo-sg"
+  name        = "${var.project_name}-demo-sg"
   description = "Allow inbound traffic"
   vpc_id      = module.vpc.vpc_id
 

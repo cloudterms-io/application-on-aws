@@ -14,6 +14,8 @@ resource "aws_launch_template" "this" {
   }
 
   block_device_mappings {
+    device_name = var.device_name
+
     ebs {
       volume_size           = var.volume_size
       volume_type           = var.volume_type

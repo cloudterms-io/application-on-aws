@@ -1,5 +1,5 @@
 #######################################
-# Attach custom policy
+# Create custom policy
 #######################################
 data "aws_iam_policy_document" "policy_doc" {
   version = "2012-10-17"
@@ -58,5 +58,3 @@ module "instance_profile" {
   ]
   role_path = "/"
 }
-
-

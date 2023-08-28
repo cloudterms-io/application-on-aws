@@ -16,11 +16,11 @@ module "acm_route53" {
 module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
-  name_prefix = "cloud-"
+  name_prefix        = "cloud-"
   load_balancer_type = "application"
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.public_subnet_id
-  security_groups = [aws_security_group.alb_sg.id]
+  vpc_id             = module.vpc.vpc_id
+  subnets            = module.vpc.public_subnet_id
+  security_groups    = [aws_security_group.alb_sg.id]
 
   #  access_logs = {
   #     bucket = "my-alb-logs"

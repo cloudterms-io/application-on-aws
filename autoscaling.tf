@@ -16,12 +16,12 @@
 
 module "asg" {
   source = "terraform-aws-modules/autoscaling/aws"
+  create = false
 
-  name = "cloud"
-
+  name                    = "cloud"
   create_launch_template  = false
-  launch_template         = aws_launch_template.this.name
-  launch_template_version = aws_launch_template.this.latest_version
+  launch_template         = module.launch_template.name
+  launch_template_version = module.launch_template.latest_version
   vpc_zone_identifier     = module.vpc.public_subnet_id
 
   desired_capacity = 2

@@ -8,35 +8,28 @@ data "aws_ami" "amazonlinux2" {
   }
 }
 
-resource "aws_launch_template" "this" {
-  name_prefix   = "cloudapp"
-  image_id      = data.aws_ami.amazonlinux2.id
-  instance_type = "t2.micro"
-  key_name      = "ec2-access"
+module "launch_template" {
+  source = "./modules/launch-template"
 
-  update_default_version = true # Make latest version = default version
+  create = false
 
-  vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
+  launch_template_name_prefix = "cloud"
+  image_id                    = data.aws_ami.amazonlinux2.id
+  instance_type               = "t3.micro"
+  key_name                    = "ec2-access"
+  update_default_version      = true
+  vpc_security_group_ids      = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
+  iam_instance_profile_name   = aws_iam_instance_profile.instance_role.name
+  volume_size                 = 20
+  volume_type                 = "gp2"
+  delete_on_termination       = true
+  enable_monitoring           = false
+  user_data_file_path         = filebase64("${path.module}/userdata.sh")
 
-
-  iam_instance_profile {
-    name = aws_iam_instance_profile.instance_role.name
-  }
-
-  block_device_mappings {
-    device_name = "/dev/sdf"
-
-    ebs {
-      volume_size = 20
-    }
-  }
-
-  user_data = filebase64("${path.module}/userdata.sh")
-  tag_specifications {
-    resource_type = "instance"
-
-    tags = {
-      Name = "test"
-    }
+  resource_type = "instance"
+  tags = {
+    Name        = "cloud"
+    Environment = "prod"
   }
 }
+

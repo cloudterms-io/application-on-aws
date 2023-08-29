@@ -146,7 +146,7 @@ module "rds" {
 
   # Credentials Settings
   db_master_username = "admin"
-  #db_master_password                  = random_password.password.result
+
   iam_database_authentication_enabled = false
 
   # Availability and durability
@@ -185,31 +185,6 @@ module "rds" {
 
 }
 
-####################################
-#   EFS
-####################################
-resource "aws_efs_file_system" "efs" {
-  creation_token = var.project_name
-
-  encrypted        = true
-  throughput_mode  = "bursting"
-  performance_mode = "generalPurpose"
-
-  lifecycle_policy {
-    transition_to_ia = "AFTER_30_DAYS"
-  }
-  tags = {
-    Name = "${var.project_name}-efs"
-  }
-}
-
-resource "aws_efs_mount_target" "efs_mount" {
-  count           = length(module.vpc.private_subnet_id)
-  file_system_id  = aws_efs_file_system.efs.id
-  subnet_id       = module.vpc.private_subnet_id[count.index]
-  security_groups = [aws_security_group.efs_sg.id]
-}
-
 #################################################
 #       DB Parameters
 #################################################
@@ -219,7 +194,7 @@ module "db_parameters" {
 
   parameters = [
     {
-      name        = "/wordpress/db/DBUser"
+      name        = "/application/db/DBUser"
       type        = "String"
       description = "Database Username"
       value       = module.rds.db_instance_username
@@ -228,7 +203,7 @@ module "db_parameters" {
       }
     },
     {
-      name        = "/wordpress/db/DBName"
+      name        = "/application/db/DBName"
       type        = "String"
       description = "Initial Database Name"
       value       = module.rds.db_name
@@ -237,7 +212,7 @@ module "db_parameters" {
       }
     },
     {
-      name        = "/wordpress/db/DBEndpoint"
+      name        = "/application/db/DBEndpoint"
       type        = "String"
       description = "Database Instance Endpoint"
       value       = module.rds.db_instance_endpoint
@@ -246,7 +221,7 @@ module "db_parameters" {
       }
     },
     {
-      name        = "/wordpress/db/DBHostname"
+      name        = "/application/db/DBHostname"
       type        = "String"
       description = "Database Instance Hostname"
       value       = module.rds.db_instance_address
@@ -255,7 +230,7 @@ module "db_parameters" {
       }
     },
     {
-      name        = "/wordpress/db/DBPort"
+      name        = "/application/db/DBPort"
       type        = "String"
       description = "Database Instance Port"
       value       = module.rds.db_instance_port
@@ -264,7 +239,7 @@ module "db_parameters" {
       }
     },
     {
-      name        = "/wordpress/db/DBPassword"
+      name        = "/application/db/DBPassword"
       type        = "SecureString"
       description = "Database password"
       value       = module.rds.db_instance_password
@@ -276,6 +251,26 @@ module "db_parameters" {
   ]
 }
 
+####################################
+#   EFS
+####################################
+module "efs" {
+  source               = "./modules/efs"
+  name                 = format("%s-efs", var.project_name)
+  efs_subnet_ids       = module.vpc.private_subnet_id
+  security_group_ids   = [aws_security_group.efs_sg.id]
+  efs_encrypted        = true
+  efs_throughput_mode  = "bursting"
+  efs_performance_mode = "generalPurpose"
+  efs_transition_to_ia = "AFTER_30_DAYS"
+  efs_tags = {
+    Name        = "${var.project_name}-efs"
+    Environment = "Development"
+    Project     = "MyProject"
+  }
+}
+
+
 #################################################
 #       EFS Parameters
 #################################################
@@ -285,10 +280,10 @@ module "efs_parameters" {
 
   parameters = [
     {
-      name        = "/wordpress/efs/EFSID"
+      name        = "/application/efs/EFSID"
       type        = "String"
       description = "The ID that identifies the file system"
-      value       = aws_efs_file_system.efs.id
+      value       = module.efs.id
       tags = {
         "Name" = var.project_name
       }
@@ -296,9 +291,8 @@ module "efs_parameters" {
   ]
 }
 
-
 #################################################
-#       Demo EC2 on publics
+#       Demo EC2 on public subnet
 #################################################
 resource "aws_security_group" "demo_sg" {
   name        = "${var.project_name}-demo-sg"

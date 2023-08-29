@@ -1,19 +1,3 @@
-# resource "aws_autoscaling_group" "this" {
-#  name_prefix = "cloudapp"
-
-#  desired_capacity = 2
-#  min_size         = 2
-#  max_size         = 4
-
-
-#  launch_template {
-#     id      = aws_launch_template.this.id
-#     version = aws_launch_template.this.latest_version
-#  }
-
-#  vpc_zone_identifier = module.vpc.public_subnet_id
-# }
-
 module "asg" {
   source = "terraform-aws-modules/autoscaling/aws"
   create = true

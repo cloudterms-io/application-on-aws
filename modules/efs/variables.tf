@@ -22,11 +22,11 @@ variable "efs_encrypted" {
   default     = true
 }
 
-variable "kms_key_id" {
-  description = "The ARN for the KMS encryption key. When specifying kms_key_id, encrypted needs to be set to true"
-  type        = string
-  default     = ""
-}
+# variable "kms_key_id" {
+#   description = "The ARN for the KMS encryption key. When specifying kms_key_id, encrypted needs to be set to true"
+#   type        = string
+#   default     = ""
+# }
 
 variable "efs_throughput_mode" {
   description = "EFS throughput mode (e.g., 'provisioned', 'bursting','elastic)"

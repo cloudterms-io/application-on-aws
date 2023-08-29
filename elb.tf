@@ -61,7 +61,7 @@ module "alb" {
   ]
 
   tags = {
-    Environment = "Testing-1"
+    Environment = "Testing"
   }
 }
 

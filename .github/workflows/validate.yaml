@@ -8,10 +8,27 @@ on:
       - master
 
 jobs:
-  versionExtract:
-    name: Extract min/max Terraform versions
-    runs-on: ubuntu-20.04
+  collectInputs:
+    name: collect workflow inputs
+    runs-on: ubuntu-latest
+    outputs: 
+      directories: ${{steps.dirs.outputs.directories}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: list of directories that contain a versions.tf
+      id: dirs
+      uses: clowdhaus/terraform-composite-actions/directories@v1.8.3
 
+  versionExtract:
+    needs: collectInputs
+    name: Extract min/max Terraform versions
+    runs-on: ubuntu-latest
+    outputs:
+      minVersion: ${{ steps.minMax.outputs.minVersion }}
+      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.collectInputs.outputs.directories) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -20,30 +37,31 @@ jobs:
         id: minMax
         uses: clowdhaus/terraform-min-max@main
         with:
-          directory: .
-    outputs:
-      minVersion: ${{ steps.minMax.outputs.minVersion }}
-      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+          directory: ${{ matrix.directory }}
+      - name: view
+        run: |
+          echo "${{ steps.minMax.outputs.minVersion }}"
+          echo "${{ steps.minMax.outputs.maxVersion }}"
 
-  terraform-validate:
-    runs-on: ubuntu-20.04
-    needs: versionExtract
-    strategy:
-      matrix:
-        tf_ver:
-          - ${{ needs.versionExtract.outputs.minVersion }}
-          - ${{ needs.versionExtract.outputs.maxVersion }}
+  # terraform-validate:
+  #   runs-on: ubuntu-20.04
+  #   needs: versionExtract
+  #   strategy:
+  #     matrix:
+  #       tf_ver:
+  #         - ${{ needs.versionExtract.outputs.minVersion }}
+  #         - ${{ needs.versionExtract.outputs.maxVersion }}
 
-    steps:
-    - uses: actions/checkout@v2
-    - uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: ${{ matrix.tf_ver }}
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: hashicorp/setup-terraform@v2
+  #     with:
+  #       terraform_version: ${{ matrix.tf_ver }}
 
-    - name: Terraform Init
-      id: init
-      run: terraform init
+  #   - name: Terraform Init
+  #     id: init
+  #     run: terraform init
 
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate
+  #   - name: Terraform Validate
+  #     id: validate
+  #     run: terraform validate

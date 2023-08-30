@@ -48,9 +48,17 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | The type of DB Engine | `string` | `"mysql"` | no |
+| <a name="input_db_identifier"></a> [db\_identifier](#input\_db\_identifier) | The name of the RDS instance | `string` | `"aws-ref-arch-db-1"` | no |
+| <a name="input_efs_name"></a> [efs\_name](#input\_efs\_name) | Name of the Elastic File System | `string` | `"aws-ref-arch-efs"` | no |
+| <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | General tags to apply to resources created | `map(string)` | <pre>{<br>  "Env": "dev",<br>  "Project_name": "aws-ref-architecture",<br>  "Team": "platform-team"<br>}</pre> | no |
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Name of the role | `string` | `"aws-ref-architecture"` | no |
+| <a name="input_vpc_name"></a> [vpc\_name](#input\_vpc\_name) | Name of the VPC | `string` | `"aws-ref-arch-vpc"` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_db_parameters"></a> [db\_parameters](#output\_db\_parameters) | List of RDS Parameters |
+| <a name="output_efs_parameters"></a> [efs\_parameters](#output\_efs\_parameters) | List of EFS Parameters |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

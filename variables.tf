@@ -27,3 +27,16 @@ variable "db_identifier" {
   type        = string
   default     = "aws-ref-arch-db-1"
 }
+
+variable "db_engine" {
+  description = "The type of DB Engine"
+  type        = string
+  default     = "mysql"
+}
+
+# EFS
+variable "efs_name" {
+  description = "Name of the Elastic File System"
+  type        = string
+  default     = "aws-ref-arch-efs"
+}

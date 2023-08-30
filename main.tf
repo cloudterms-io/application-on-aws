@@ -87,6 +87,11 @@ module "rds" {
 
 }
 
+locals {
+  db_parameters_prefix  = join("/", ["/rds", var.db_identifier, var.db_engine])
+  efs_parameters_prefix = join("/", ["/efs", var.efs_name])
+}
+
 #################################################
 #       DB Parameters
 #################################################
@@ -96,59 +101,47 @@ module "db_parameters" {
 
   parameters = [
     {
-      name        = "/application/db/DBUser"
+      name        = join("/", [local.db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
       value       = module.rds.db_instance_username
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBName"
+      name        = join("/", [local.db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
       value       = module.rds.db_name
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBEndpoint"
+      name        = join("/", [local.db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
       value       = module.rds.db_instance_endpoint
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBHostname"
+      name        = join("/", [local.db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
       value       = module.rds.db_instance_address
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBPort"
+      name        = join("/", [local.db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
       value       = module.rds.db_instance_port
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBPassword"
+      name        = join("/", [local.db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
       value       = module.rds.db_instance_password
       key_alias   = "alias/aws/ssm"
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
   ]
 }
@@ -158,20 +151,19 @@ module "db_parameters" {
 ####################################
 module "efs" {
   source               = "./modules/efs"
-  name                 = format("%s-efs", var.project_name)
+  name                 = var.efs_name
   efs_subnet_ids       = module.vpc.private_subnet_id
   security_group_ids   = [aws_security_group.efs_sg.id]
   efs_encrypted        = true
   efs_throughput_mode  = "bursting"
   efs_performance_mode = "generalPurpose"
   efs_transition_to_ia = "AFTER_30_DAYS"
-  efs_tags = {
-    Name        = "${var.project_name}-efs"
-    Environment = "Development"
-    Project     = "MyProject"
-  }
-}
 
+  efs_tags = merge(
+    { "Name" = var.efs_name },
+    var.general_tags,
+  )
+}
 
 #################################################
 #       EFS Parameters
@@ -182,59 +174,12 @@ module "efs_parameters" {
 
   parameters = [
     {
-      name        = "/application/efs/EFSID"
+      name        = join("/", [local.efs_parameters_prefix, "EFSID"])
       type        = "String"
       description = "The ID that identifies the file system"
       value       = module.efs.id
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
   ]
 }
 
-#################################################
-#       Demo EC2 on public subnet
-#################################################
-resource "aws_security_group" "demo_sg" {
-  name        = "${var.project_name}-demo-sg"
-  description = "Allow inbound traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [22]
-    iterator = port
-    content {
-      description = "Traffic from anywhere"
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-# module "ec2_instance" {
-#   source = "terraform-aws-modules/ec2-instance/aws"
-
-#   name = "access-test"
-
-#   instance_type          = "t2.micro"
-#   key_name               = "ec2-access"
-#   monitoring             = false
-#   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
-#   subnet_id              = module.vpc.public_subnet_id[0]
-#   iam_instance_profile   = module.instance_profile.profile_name
-
-#   tags = {
-#     Terraform   = "true"
-#     Environment = "dev"
-#   }
-# }

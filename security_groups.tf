@@ -99,3 +99,31 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = [module.vpc.vpc_cidr_block]
   }
 }
+
+#################################################
+#       Demo EC2 on public subnet
+#################################################
+resource "aws_security_group" "demo_sg" {
+  name        = "${var.project_name}-demo-sg"
+  description = "Allow inbound traffic"
+  vpc_id      = module.vpc.vpc_id
+
+  dynamic "ingress" {
+    for_each = [22]
+    iterator = port
+    content {
+      description = "Traffic from anywhere"
+      from_port   = port.value
+      to_port     = port.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}

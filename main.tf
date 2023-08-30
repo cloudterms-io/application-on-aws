@@ -5,7 +5,7 @@ module "vpc" {
 
   source = "shamimice03/vpc/aws"
 
-  vpc_name = "wordpress-on-cloud"
+  vpc_name = "aws-ref-arch-vpc"
   cidr     = "10.3.0.0/16"
 
   azs                 = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
@@ -17,112 +17,10 @@ module "vpc" {
   enable_dns_support        = true
   enable_single_nat_gateway = false
 
-  tags = {
-    "Team" = "devops"
-    "Env"  = "prod"
-  }
-}
-
-#################################################
-#   Security groups
-#################################################
-resource "aws_security_group" "alb_sg" {
-  name        = format("%s-alb-sg", var.project_name)
-  description = "Allow inbound traffic to ALB"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [80, 443]
-    iterator = port
-    content {
-      description = "Traffic from anywhere"
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-resource "aws_security_group" "public_sg" {
-  name        = format("%s-public-sg", var.project_name)
-  description = "Allow inbound traffic from ALB"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [80]
-    iterator = port
-    content {
-      description     = "Traffic from ALB"
-      from_port       = port.value
-      to_port         = port.value
-      protocol        = "tcp"
-      security_groups = [aws_security_group.alb_sg.id] # from ALB SG
-    }
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-resource "aws_security_group" "efs_sg" {
-  name        = format("%s-efs-sg", var.project_name)
-  description = "Allow inbound traffic from public sg"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [2049]
-    iterator = port
-    content {
-      description     = "Allow from public sg"
-      from_port       = port.value
-      to_port         = port.value
-      protocol        = "tcp"
-      security_groups = [aws_security_group.public_sg.id]
-    }
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-resource "aws_security_group" "rds_sg" {
-  name        = format("%s-rds-sg", var.project_name)
-  description = "Allow inbound traffic from public sg"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [3306]
-    iterator = port
-    content {
-      description     = "Allow from public sg"
-      from_port       = port.value
-      to_port         = port.value
-      protocol        = "tcp"
-      security_groups = [aws_security_group.public_sg.id]
-    }
-  }
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = [module.vpc.vpc_cidr_block]
-  }
+  tags = merge(
+    { "Name" = var.vpc_name },
+    var.general_tags,
+  )
 }
 
 ####################################
@@ -134,18 +32,18 @@ module "rds" {
 
   # DB Subnet Group
   create_db_subnet_group = true
-  db_subnet_group_name   = format("%s-db-subnet", var.project_name)
+  db_subnet_group_name   = "aws-ref-arch-db-subnet"
   db_subnets             = module.vpc.db_subnet_id
 
   # Identify DB instance
-  db_identifier = format("%s-db-1", var.project_name)
+  db_identifier = var.db_identifier
 
   # Create Initial Database
-  db_name = "mydb"
+  db_name = "userlist"
 
   # Credentials Settings
-  db_master_username = "admin"
-
+  # password will be auto generated
+  db_master_username                  = "admin"
   iam_database_authentication_enabled = false
 
   # Availability and durability
@@ -181,6 +79,11 @@ module "rds" {
   apply_immediately        = true
   delete_automated_backups = true
   skip_final_snapshot      = true
+
+  tags = merge(
+    { "Name" = var.db_identifier },
+    var.general_tags,
+  )
 
 }
 

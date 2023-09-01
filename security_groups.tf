@@ -1,5 +1,5 @@
 #################################################
-#   Security groups
+#   Security Groups
 #################################################
 resource "aws_security_group" "alb_sg" {
   name        = "aws-ref-arch-alb-sg"

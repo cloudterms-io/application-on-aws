@@ -1,7 +1,13 @@
-output "db_parameters" {
-  description = "List of RDS Parameters"
+output "primary_db_parameters" {
+  description = "List of Primary DB Parameters"
   sensitive   = true
-  value       = module.db_parameters.parameters
+  value       = module.primary_db_parameters.parameters
+}
+
+output "replica_db_parameters" {
+  description = "List of Primary DB Parameters"
+  sensitive   = true
+  value       = module.replica_db_parameters.parameters
 }
 
 output "efs_parameters" {

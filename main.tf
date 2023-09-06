@@ -26,7 +26,7 @@ module "vpc" {
 #    Primary Database
 ##################################################
 locals {
-  rds_security_group = [aws_security_group.rds_sg.id]
+  rds_security_groups = [module.rds_sg.security_group_id]
 }
 
 
@@ -65,7 +65,7 @@ module "rds" {
   max_allocated_storage = var.max_allocated_storage
 
   # Connectivity
-  db_security_groups  = coalesce(local.rds_security_group, var.db_security_groups)
+  db_security_groups  = coalesce(local.rds_security_groups, var.db_security_groups)
   publicly_accessible = var.publicly_accessible
   database_port       = var.database_port
 
@@ -105,19 +105,18 @@ module "rds_replica" {
   instance_class                      = coalesce(var.replica_instance_class, var.instance_class)
   iam_database_authentication_enabled = coalesce(var.replica_iam_database_authentication_enabled, var.iam_database_authentication_enabled)
   storage_type                        = coalesce(var.replica_storage_type, var.storage_type)
-  # allocated_storage                   = coalesce(var.replica_allocated_storage, var.allocated_storage)
-  max_allocated_storage           = coalesce(var.replica_max_allocated_storage, var.max_allocated_storage)
-  db_security_groups              = coalesce(local.rds_security_group, var.db_security_groups)
-  publicly_accessible             = coalesce(var.replica_publicly_accessible, var.publicly_accessible)
-  database_port                   = coalesce(var.replica_database_port, var.database_port)
-  backup_retention_period         = coalesce(var.replica_backup_retention_period, var.backup_retention_period)
-  backup_window                   = coalesce(var.replica_backup_window, var.backup_window)
-  maintenance_window              = coalesce(var.replica_maintenance_window, var.maintenance_window)
-  deletion_protection             = coalesce(var.replica_deletion_protection, var.deletion_protection)
-  enabled_cloudwatch_logs_exports = coalesce(var.replica_enabled_cloudwatch_logs_exports, var.enabled_cloudwatch_logs_exports)
-  apply_immediately               = coalesce(var.replica_apply_immediately, var.apply_immediately)
-  delete_automated_backups        = coalesce(var.replica_delete_automated_backups, var.delete_automated_backups)
-  skip_final_snapshot             = coalesce(var.replica_skip_final_snapshot, var.skip_final_snapshot)
+  max_allocated_storage               = coalesce(var.replica_max_allocated_storage, var.max_allocated_storage)
+  db_security_groups                  = coalesce(local.rds_security_groups, var.db_security_groups)
+  publicly_accessible                 = coalesce(var.replica_publicly_accessible, var.publicly_accessible)
+  database_port                       = coalesce(var.replica_database_port, var.database_port)
+  backup_retention_period             = coalesce(var.replica_backup_retention_period, var.backup_retention_period)
+  backup_window                       = coalesce(var.replica_backup_window, var.backup_window)
+  maintenance_window                  = coalesce(var.replica_maintenance_window, var.maintenance_window)
+  deletion_protection                 = coalesce(var.replica_deletion_protection, var.deletion_protection)
+  enabled_cloudwatch_logs_exports     = coalesce(var.replica_enabled_cloudwatch_logs_exports, var.enabled_cloudwatch_logs_exports)
+  apply_immediately                   = coalesce(var.replica_apply_immediately, var.apply_immediately)
+  delete_automated_backups            = coalesce(var.replica_delete_automated_backups, var.delete_automated_backups)
+  skip_final_snapshot                 = coalesce(var.replica_skip_final_snapshot, var.skip_final_snapshot)
 
   tags = merge(
     { "Name" = "${var.db_identifier}-replica" },
@@ -248,15 +247,21 @@ module "replica_db_parameters" {
 ##################################################
 #   Elastic File System
 ##################################################
+locals {
+  efs_mount_target_subnet_ids         = module.vpc.private_subnet_id
+  efs_mount_target_security_group_ids = [module.efs_sg.security_group_id]
+}
+
+
 module "efs" {
   source                              = "./modules/efs"
   name                                = var.efs_name
-  efs_mount_target_subnet_ids         = module.vpc.private_subnet_id
-  efs_mount_target_security_group_ids = [aws_security_group.efs_sg.id]
-  efs_encrypted                       = true
-  efs_throughput_mode                 = "bursting"
-  efs_performance_mode                = "generalPurpose"
-  efs_transition_to_ia                = "AFTER_30_DAYS"
+  efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
+  efs_mount_target_security_group_ids = local.efs_mount_target_security_group_ids
+  efs_encrypted                       = var.efs_encrypted
+  efs_throughput_mode                 = var.efs_throughput_mode
+  efs_performance_mode                = var.efs_performance_mode
+  efs_transition_to_ia                = var.efs_transition_to_ia
 
   efs_tags = merge(
     { "Name" = var.efs_name },

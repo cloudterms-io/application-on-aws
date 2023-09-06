@@ -1,7 +1,8 @@
 variable "project_name" {
-  description = "Name of the role"
+  description = "Name of the project"
   type        = string
   default     = "aws-ref-architecture"
+  nullable    = false
 }
 
 variable "general_tags" {
@@ -68,6 +69,37 @@ variable "enable_single_nat_gateway" {
   type        = bool
   default     = false
 }
+######################## Secuirity Groups ###########################
+variable "alb_sg_name" {
+  description = "Name of the ALB security group"
+  type        = string
+  default     = "aws-ref-arch-alb-sg"
+}
+
+variable "ec2_sg_name" {
+  description = "Name of the ec2 security group"
+  type        = string
+  default     = "aws-ref-arch-public-sg"
+}
+
+variable "efs_sg_name" {
+  description = "Name of the EFS security group"
+  type        = string
+  default     = "aws-ref-arch-efs-sg"
+}
+
+variable "rds_sg_name" {
+  description = "Name of the RDS security group"
+  type        = string
+  default     = "aws-ref-arch-rds-sg"
+}
+
+variable "ssh_sg_name" {
+  description = "Name of the SSH security group"
+  type        = string
+  default     = "aws-ref-arch-ssh-sg"
+}
+
 
 ######################## Primary Database ###########################
 variable "db_identifier" {
@@ -275,12 +307,6 @@ variable "replica_storage_type" {
   default     = ""
 }
 
-variable "replica_allocated_storage" {
-  description = "Allocated storage for the RDS replica instance (in GB)"
-  type        = string
-  default     = ""
-}
-
 variable "replica_max_allocated_storage" {
   description = "Maximum allocated storage for the RDS replica instance (in GB)"
   type        = string
@@ -359,4 +385,101 @@ variable "efs_name" {
   description = "Name of the Elastic File System"
   type        = string
   default     = "aws-ref-arch-efs"
+}
+
+variable "efs_encrypted" {
+  description = "Whether to enable encryption for the EFS file system"
+  type        = bool
+  default     = true
+}
+
+variable "efs_throughput_mode" {
+  description = "The throughput mode for the EFS file system (e.g., 'bursting' or 'provisioned')"
+  type        = string
+  default     = "bursting"
+}
+
+variable "efs_performance_mode" {
+  description = "The performance mode for the EFS file system (e.g., 'generalPurpose' or 'maxIO')"
+  type        = string
+  default     = "generalPurpose"
+}
+
+variable "efs_transition_to_ia" {
+  description = "The lifecycle policy transition for files to Infrequent Access (IA) storage"
+  type        = string
+  default     = "AFTER_30_DAYS"
+}
+
+######################## Launch Template ########################
+variable "launch_template_image_id" {
+  description = "The AMI from which to launch the instance. Default will be `Amazonlinux2`"
+  type        = string
+  default     = ""
+}
+
+variable "launch_template_instance_type" {
+  description = "The EC2 instance type for instances launched from the template"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "launch_template_key_name" {
+  description = "The name of the SSH key pair to associate with instances launched from the template"
+  type        = string
+  default     = "ec2-access"
+}
+
+variable "launch_template_update_default_version" {
+  description = "Flag to update the default version of the launch template"
+  type        = bool
+  default     = true
+}
+
+variable "launch_template_name_prefix" {
+  description = "Creates a unique name beginning with the specified prefix"
+  type        = string
+  default     = "aws-ref-arch"
+}
+
+variable "launch_template_device_name" {
+  description = "The device name for the root volume"
+  type        = string
+  default     = "/dev/sda1"
+}
+
+variable "launch_template_volume_size" {
+  description = "The size of the root volume for instances launched from the template (in GiB)"
+  type        = number
+  default     = 20
+}
+
+variable "launch_template_volume_type" {
+  description = "The type of volume for the root volume (e.g., 'gp2')"
+  type        = string
+  default     = "gp2"
+}
+
+variable "launch_template_delete_on_termination" {
+  description = "Whether the root volume should be deleted on instance termination"
+  type        = bool
+  default     = true
+}
+
+variable "launch_template_enable_monitoring" {
+  description = "Whether instance monitoring should be enabled"
+  type        = bool
+  default     = false
+}
+
+variable "launch_template_userdata_file_path" {
+  description = "Path to the user data script file"
+  type        = string
+  default     = "userdata.sh"
+}
+
+variable "launch_template_resource_type" {
+  description = "The type of resource to tag"
+  type        = string
+  default     = "instance"
 }

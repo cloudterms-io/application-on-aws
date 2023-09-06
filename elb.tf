@@ -1,3 +1,9 @@
+locals {
+  vpc_id              = module.vpc.vpc_id
+  alb_subnets         = module.vpc.public_subnet_id
+  alb_security_groups = [module.alb_sg.security_group_id]
+}
+
 module "acm_route53" {
 
   source = "shamimice03/acm-route53/aws"
@@ -18,9 +24,9 @@ module "alb" {
 
   name_prefix        = "cloud-"
   load_balancer_type = "application"
-  vpc_id             = module.vpc.vpc_id
-  subnets            = module.vpc.public_subnet_id
-  security_groups    = [aws_security_group.alb_sg.id]
+  vpc_id             = local.vpc_id
+  subnets            = local.alb_subnets
+  security_groups    = local.alb_security_groups
 
   #  access_logs = {
   #     bucket = "my-alb-logs"

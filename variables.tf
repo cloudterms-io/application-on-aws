@@ -483,3 +483,243 @@ variable "launch_template_resource_type" {
   type        = string
   default     = "instance"
 }
+
+######################## AutoScaling Group  ########################
+variable "asg_name" {
+  description = "Name of the Auto Scaling Group"
+  type        = string
+  default     = ""
+}
+
+variable "asg_vpc_zone_identifier" {
+  description = "List of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Required if `VPC` is not created as part of this project"
+  type        = list(string)
+  default     = []
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired capacity of the Auto Scaling Group"
+  type        = number
+  default     = 2
+}
+
+variable "asg_min_size" {
+  description = "Minimum size of the Auto Scaling Group"
+  type        = number
+  default     = 2
+}
+
+variable "asg_max_size" {
+  description = "Maximum size of the Auto Scaling Group"
+  type        = number
+  default     = 4
+}
+
+variable "asg_wait_for_capacity_timeout" {
+  description = "Timeout for waiting for the desired capacity to be reached"
+  type        = number
+  default     = 0
+}
+
+variable "asg_health_check_type" {
+  description = "Health check type for the Auto Scaling Group"
+  type        = string
+  default     = "ELB"
+}
+
+variable "asg_health_check_grace_period" {
+  description = "Health check grace period for instances in the Auto Scaling Group"
+  type        = number
+  default     = 300
+}
+
+variable "asg_enable_monitoring" {
+  description = "Enable monitoring for the Auto Scaling Group"
+  type        = bool
+  default     = true
+}
+
+######################## ACM - Route53 ########################
+variable "acm_domain_name" {
+  description = "Domain name for ACM certificate"
+  type        = string
+  default     = "demo.kubecloud.net"
+}
+
+variable "acm_validation_method" {
+  description = "Validation method for ACM certificate"
+  type        = string
+  default     = "DNS"
+}
+
+variable "acm_hosted_zone_name" {
+  description = "Hosted zone name for DNS validation"
+  type        = string
+  default     = "kubecloud.net"
+}
+
+variable "acm_private_zone" {
+  description = "Whether the hosted zone is private or not"
+  type        = bool
+  default     = false
+}
+
+variable "acm_allow_record_overwrite" {
+  description = "Allow record overwrite in DNS validation"
+  type        = bool
+  default     = true
+}
+
+variable "acm_ttl" {
+  description = "Time to live (TTL) for DNS records"
+  type        = number
+  default     = 60
+}
+
+######################## ALB ########################
+variable "alb_name_prefix" {
+  description = "Prefix for the Application Load Balancer name"
+  type        = string
+  default     = "awsref"
+}
+
+variable "load_balancer_type" {
+  description = "Type of the Load Balancer"
+  type        = string
+  default     = "application"
+}
+
+variable "alb_target_group_name_prefix" {
+  description = "Prefix for the ALB target group name"
+  type        = string
+  default     = "ref-tg"
+}
+
+######################### ALB - Route53 ###################
+variable "alb_route53_zone_name" {
+  description = "The DNS zone name"
+  type        = string
+  default     = "kubecloud.net."
+}
+
+variable "alb_route53_record_name_1" {
+  description = "The DNS record name for the first ALB record"
+  type        = string
+  default     = "demo.kubecloud.net"
+}
+
+variable "alb_route53_record_name_2" {
+  description = "The DNS record name for the second ALB record"
+  type        = string
+  default     = "www.demo.kubecloud.net"
+}
+
+variable "alb_route53_record_type" {
+  description = "The DNS record type for ALB records"
+  type        = string
+  default     = "A"
+}
+
+variable "alb_route53_private_zone" {
+  description = "Whether the DNS zone is private or not"
+  type        = bool
+  default     = false
+}
+
+variable "alb_route53_evaluate_target_health" {
+  description = "Whether to evaluate the target health of the ALB"
+  type        = bool
+  default     = true
+}
+
+################# IAM Instance Profile ###############
+variable "instance_profile_create_instance_profile" {
+  description = "Whether to create an instance profile"
+  type        = bool
+  default     = true
+}
+
+variable "instance_profile_role_name" {
+  description = "Name of the IAM role associated with the instance profile"
+  type        = string
+  default     = "aws-ref-instance-role"
+}
+
+variable "instance_profile_instance_profile_name" {
+  description = "Name of the IAM instance profile"
+  type        = string
+  default     = "aws-ref-instance-role"
+}
+
+variable "instance_profile_managed_policy_arns" {
+  description = "List of ARNs of managed policies to attach to the role"
+  type        = list(string)
+  default = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
+  ]
+}
+
+variable "instance_profile_custom_policy_arns" {
+  description = "List of ARNs of custom policies(created outside of this project) to attach to the role"
+  type        = list(string)
+  default = [
+    "arn:aws:iam::391178969547:policy/AllowFromJapan",
+    "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices",
+  ]
+}
+
+variable "instance_profile_role_path" {
+  description = "The path for the IAM role"
+  type        = string
+  default     = "/"
+}
+
+#################### Create custom policy ####################
+variable "create_custom_policy" {
+  description = "Whether to create custom policy"
+  type        = bool
+  default     = true
+}
+
+variable "custom_iam_policy_name_prefix" {
+  description = "Prefix for the IAM policy name. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "ListAllS3Buckets"
+}
+
+variable "custom_iam_policy_path" {
+  description = "The path for the IAM policy. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "/"
+}
+
+variable "custom_iam_policy_description" {
+  description = "Description for the IAM policy. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "List all s3 buckets"
+}
+
+variable "custom_iam_policy_json" {
+  description = "JSON policy document. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+
+
+
+

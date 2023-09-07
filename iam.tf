@@ -1,60 +1,43 @@
 #######################################
 # Create custom policy
 #######################################
-data "aws_iam_policy_document" "policy_doc" {
-  version = "2012-10-17"
+module "custom_iam_policy" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-policy"
 
-  statement {
-    effect = "Allow"
+  create_policy = var.create_custom_policy
 
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
-    ]
+  name_prefix = var.custom_iam_policy_name_prefix
+  path        = var.custom_iam_policy_path
+  description = coalesce(var.custom_iam_policy_description, var.custom_iam_policy_name_prefix)
 
-    resources = [
-      "arn:aws:s3:::application001/*",
-    ]
-  }
+  policy = var.custom_iam_policy_json
 
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::application001",
-    ]
-  }
+  tags = merge(
+    { "Type" = "Custom-Policy" },
+    var.general_tags,
+  )
 }
 
-resource "aws_iam_policy" "policy" {
-  name   = "BucketAccessPolicy"
-  path   = "/"
-  policy = data.aws_iam_policy_document.policy_doc.json
-}
 
 #######################################
 # IAM Instance profile
 #######################################
+locals {
+  instance_profile_custom_policy_arns       = compact(concat(var.instance_profile_custom_policy_arns, [module.custom_iam_policy.arn]))
+  instance_profile_custom_policy_arns_count = length(var.instance_profile_custom_policy_arns) + (var.create_custom_policy ? 1 : 0)
+}
+
 module "instance_profile" {
 
   source = "./modules/iam-instance-profile"
 
-  create_instance_profile = true
-  role_name               = "${var.project_name}-role"
-  instance_profile_name   = "${var.project_name}-instance-profile"
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
-  ]
-  custom_policy_arns = [
-    aws_iam_policy.policy.arn
-  ]
-  role_path = "/"
+  create_instance_profile  = var.instance_profile_create_instance_profile
+  role_name                = var.instance_profile_role_name
+  instance_profile_name    = var.instance_profile_instance_profile_name
+  managed_policy_arns      = var.instance_profile_managed_policy_arns
+  custom_policy_arns       = local.instance_profile_custom_policy_arns
+  custom_policy_arns_count = local.instance_profile_custom_policy_arns_count
+  role_path                = var.instance_profile_role_path
+
+  depends_on = [module.custom_iam_policy]
 }

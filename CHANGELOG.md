@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+### [0.1.1](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.0...v0.1.1) (2023-09-07)
+
+
+### Bug Fixes
+
+* **output:** updated outputs.tf ([85ae483](https://github.com/shamimice03/aws-ref-architecture/commit/85ae48391cc0e207354cbe4b94249d2b5984f2d9))
+* **output:** updated outputs.tf ([d2ba68d](https://github.com/shamimice03/aws-ref-architecture/commit/d2ba68dda4717fff8d4f4f3da1ef2429b1acc12f))
+* **output:** updated outputs.tf ([afab67b](https://github.com/shamimice03/aws-ref-architecture/commit/afab67b179e49ca4e001339f4a44716684b4d6c5))
+* **output:** updated outputs.tf ([398e8aa](https://github.com/shamimice03/aws-ref-architecture/commit/398e8aa226cfc2b8aa58831b5c17d174e8745167))
+* **output:** updated outputs.tf ([33c4ab2](https://github.com/shamimice03/aws-ref-architecture/commit/33c4ab2e83ba37b4aac2689ee56bfa3a80ff2fb4))
+* **output:** updated outputs.tf ([4b01609](https://github.com/shamimice03/aws-ref-architecture/commit/4b016092b275ef8bb4bc0dc07534099e8d63e7c7))
+* **output:** updated outputs.tf ([ee7f933](https://github.com/shamimice03/aws-ref-architecture/commit/ee7f9334517fb158763913039fcee79132b2cc22))
+* **output:** updated outputs.tf ([23a32e8](https://github.com/shamimice03/aws-ref-architecture/commit/23a32e85eae3e871cc37dfd32ba7aa92434d9a3b))
+
 ## [0.1.0](https://github.com/cloudterms-io/application-on-aws/compare/v0.0.1...v0.1.0) (2023-08-29)
 
 

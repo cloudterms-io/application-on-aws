@@ -718,8 +718,3 @@ variable "custom_iam_policy_json" {
 }
 EOF
 }
-
-
-
-
-

@@ -1,7 +1,7 @@
 locals {
   #policy_arns           = var.create_instance_profile ? var.custom_policy_arns : null
   role_name             = var.role_name != "" ? var.role_name : var.instance_profile_name
-  instance_profile_name = coalesce(var.instance_profile_name,var.role_name)
+  instance_profile_name = coalesce(var.instance_profile_name, var.role_name)
 }
 
 data "aws_iam_policy_document" "instance_assume_role_policy" {

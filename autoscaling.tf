@@ -9,8 +9,8 @@ locals {
 module "asg" {
   source = "terraform-aws-modules/autoscaling/aws"
   create = true
-  # Do not create launch template as part of asg. 
-  # launch templated created separatly 
+  # Do not create launch template as part of asg.
+  # launch templated created separatly
   create_launch_template = false
 
   name                    = local.asg_name

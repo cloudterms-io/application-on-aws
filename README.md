@@ -24,6 +24,7 @@
 | <a name="module_alb_route53_record_2"></a> [alb\_route53\_record\_2](#module\_alb\_route53\_record\_2) | ./modules/alb-route53 | n/a |
 | <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | n/a |
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | n/a |
+| <a name="module_custom_iam_policy"></a> [custom\_iam\_policy](#module\_custom\_iam\_policy) | terraform-aws-modules/iam/aws//modules/iam-policy | n/a |
 | <a name="module_ec2_sg"></a> [ec2\_sg](#module\_ec2\_sg) | terraform-aws-modules/security-group/aws | n/a |
 | <a name="module_efs"></a> [efs](#module\_efs) | ./modules/efs | n/a |
 | <a name="module_efs_parameters"></a> [efs\_parameters](#module\_efs\_parameters) | shamimice03/ssm-parameter/aws | n/a |
@@ -42,22 +43,48 @@
 
 | Name | Type |
 |------|------|
-| [aws_iam_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_ami.amazonlinux2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
-| [aws_iam_policy_document.policy_doc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_acm_allow_record_overwrite"></a> [acm\_allow\_record\_overwrite](#input\_acm\_allow\_record\_overwrite) | Allow record overwrite in DNS validation | `bool` | `true` | no |
+| <a name="input_acm_domain_name"></a> [acm\_domain\_name](#input\_acm\_domain\_name) | Domain name for ACM certificate | `string` | `"demo.kubecloud.net"` | no |
+| <a name="input_acm_hosted_zone_name"></a> [acm\_hosted\_zone\_name](#input\_acm\_hosted\_zone\_name) | Hosted zone name for DNS validation | `string` | `"kubecloud.net"` | no |
+| <a name="input_acm_private_zone"></a> [acm\_private\_zone](#input\_acm\_private\_zone) | Whether the hosted zone is private or not | `bool` | `false` | no |
+| <a name="input_acm_ttl"></a> [acm\_ttl](#input\_acm\_ttl) | Time to live (TTL) for DNS records | `number` | `60` | no |
+| <a name="input_acm_validation_method"></a> [acm\_validation\_method](#input\_acm\_validation\_method) | Validation method for ACM certificate | `string` | `"DNS"` | no |
+| <a name="input_alb_name_prefix"></a> [alb\_name\_prefix](#input\_alb\_name\_prefix) | Prefix for the Application Load Balancer name | `string` | `"awsref"` | no |
+| <a name="input_alb_route53_evaluate_target_health"></a> [alb\_route53\_evaluate\_target\_health](#input\_alb\_route53\_evaluate\_target\_health) | Whether to evaluate the target health of the ALB | `bool` | `true` | no |
+| <a name="input_alb_route53_private_zone"></a> [alb\_route53\_private\_zone](#input\_alb\_route53\_private\_zone) | Whether the DNS zone is private or not | `bool` | `false` | no |
+| <a name="input_alb_route53_record_name_1"></a> [alb\_route53\_record\_name\_1](#input\_alb\_route53\_record\_name\_1) | The DNS record name for the first ALB record | `string` | `"demo.kubecloud.net"` | no |
+| <a name="input_alb_route53_record_name_2"></a> [alb\_route53\_record\_name\_2](#input\_alb\_route53\_record\_name\_2) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
+| <a name="input_alb_route53_record_type"></a> [alb\_route53\_record\_type](#input\_alb\_route53\_record\_type) | The DNS record type for ALB records | `string` | `"A"` | no |
+| <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net."` | no |
 | <a name="input_alb_sg_name"></a> [alb\_sg\_name](#input\_alb\_sg\_name) | Name of the ALB security group | `string` | `"aws-ref-arch-alb-sg"` | no |
+| <a name="input_alb_target_group_name_prefix"></a> [alb\_target\_group\_name\_prefix](#input\_alb\_target\_group\_name\_prefix) | Prefix for the ALB target group name | `string` | `"ref-tg"` | no |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | Allocated storage for the RDS instance (in GB) | `string` | `"20"` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Apply changes immediately or during the next maintenance window | `bool` | `true` | no |
+| <a name="input_asg_desired_capacity"></a> [asg\_desired\_capacity](#input\_asg\_desired\_capacity) | Desired capacity of the Auto Scaling Group | `number` | `2` | no |
+| <a name="input_asg_enable_monitoring"></a> [asg\_enable\_monitoring](#input\_asg\_enable\_monitoring) | Enable monitoring for the Auto Scaling Group | `bool` | `true` | no |
+| <a name="input_asg_health_check_grace_period"></a> [asg\_health\_check\_grace\_period](#input\_asg\_health\_check\_grace\_period) | Health check grace period for instances in the Auto Scaling Group | `number` | `300` | no |
+| <a name="input_asg_health_check_type"></a> [asg\_health\_check\_type](#input\_asg\_health\_check\_type) | Health check type for the Auto Scaling Group | `string` | `"ELB"` | no |
+| <a name="input_asg_max_size"></a> [asg\_max\_size](#input\_asg\_max\_size) | Maximum size of the Auto Scaling Group | `number` | `4` | no |
+| <a name="input_asg_min_size"></a> [asg\_min\_size](#input\_asg\_min\_size) | Minimum size of the Auto Scaling Group | `number` | `2` | no |
+| <a name="input_asg_name"></a> [asg\_name](#input\_asg\_name) | Name of the Auto Scaling Group | `string` | `""` | no |
+| <a name="input_asg_vpc_zone_identifier"></a> [asg\_vpc\_zone\_identifier](#input\_asg\_vpc\_zone\_identifier) | List of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Required if `VPC` is not created as part of this project | `list(string)` | `[]` | no |
+| <a name="input_asg_wait_for_capacity_timeout"></a> [asg\_wait\_for\_capacity\_timeout](#input\_asg\_wait\_for\_capacity\_timeout) | Timeout for waiting for the desired capacity to be reached | `number` | `0` | no |
 | <a name="input_azs"></a> [azs](#input\_azs) | Availability Zones for subnets | `list(string)` | <pre>[<br>  "ap-northeast-1a",<br>  "ap-northeast-1c"<br>]</pre> | no |
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | Backup retention period (in days) for the RDS instance | `number` | `7` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | Preferred backup window for the RDS instance | `string` | `"03:00-05:00"` | no |
 | <a name="input_cidr"></a> [cidr](#input\_cidr) | CIDR block for the VPC | `string` | `"10.3.0.0/16"` | no |
+| <a name="input_create_custom_policy"></a> [create\_custom\_policy](#input\_create\_custom\_policy) | Whether to create custom policy | `bool` | `true` | no |
 | <a name="input_create_db_subnet_group"></a> [create\_db\_subnet\_group](#input\_create\_db\_subnet\_group) | Create a new DB subnet group | `bool` | `true` | no |
+| <a name="input_custom_iam_policy_description"></a> [custom\_iam\_policy\_description](#input\_custom\_iam\_policy\_description) | Description for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"List all s3 buckets"` | no |
+| <a name="input_custom_iam_policy_json"></a> [custom\_iam\_policy\_json](#input\_custom\_iam\_policy\_json) | JSON policy document. Required if `create_custom_policy` set to `true` | `string` | `"{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListAllMyBuckets\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"` | no |
+| <a name="input_custom_iam_policy_name_prefix"></a> [custom\_iam\_policy\_name\_prefix](#input\_custom\_iam\_policy\_name\_prefix) | Prefix for the IAM policy name. Required if `create_custom_policy` set to `true` | `string` | `"ListAllS3Buckets"` | no |
+| <a name="input_custom_iam_policy_path"></a> [custom\_iam\_policy\_path](#input\_custom\_iam\_policy\_path) | The path for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"/"` | no |
 | <a name="input_database_port"></a> [database\_port](#input\_database\_port) | Port for the RDS instance | `number` | `3306` | no |
 | <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | The type of DB Engine | `string` | `"mysql"` | no |
 | <a name="input_db_identifier"></a> [db\_identifier](#input\_db\_identifier) | The name of the RDS instance | `string` | `"aws-ref-arch-db"` | no |
@@ -85,6 +112,12 @@
 | <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | General tags to apply to resources created | `map(string)` | <pre>{<br>  "Env": "dev",<br>  "Project_name": "aws-ref-architecture",<br>  "Team": "platform-team"<br>}</pre> | no |
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Enable IAM database authentication | `bool` | `false` | no |
 | <a name="input_instance_class"></a> [instance\_class](#input\_instance\_class) | RDS instance class | `string` | `"db.t3.micro"` | no |
+| <a name="input_instance_profile_create_instance_profile"></a> [instance\_profile\_create\_instance\_profile](#input\_instance\_profile\_create\_instance\_profile) | Whether to create an instance profile | `bool` | `true` | no |
+| <a name="input_instance_profile_custom_policy_arns"></a> [instance\_profile\_custom\_policy\_arns](#input\_instance\_profile\_custom\_policy\_arns) | List of ARNs of custom policies(created outside of this project) to attach to the role | `list(string)` | <pre>[<br>  "arn:aws:iam::391178969547:policy/AllowFromJapan",<br>  "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices"<br>]</pre> | no |
+| <a name="input_instance_profile_instance_profile_name"></a> [instance\_profile\_instance\_profile\_name](#input\_instance\_profile\_instance\_profile\_name) | Name of the IAM instance profile | `string` | `"aws-ref-instance-role"` | no |
+| <a name="input_instance_profile_managed_policy_arns"></a> [instance\_profile\_managed\_policy\_arns](#input\_instance\_profile\_managed\_policy\_arns) | List of ARNs of managed policies to attach to the role | `list(string)` | <pre>[<br>  "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",<br>  "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",<br>  "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",<br>  "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"<br>]</pre> | no |
+| <a name="input_instance_profile_role_name"></a> [instance\_profile\_role\_name](#input\_instance\_profile\_role\_name) | Name of the IAM role associated with the instance profile | `string` | `"aws-ref-instance-role"` | no |
+| <a name="input_instance_profile_role_path"></a> [instance\_profile\_role\_path](#input\_instance\_profile\_role\_path) | The path for the IAM role | `string` | `"/"` | no |
 | <a name="input_launch_template_delete_on_termination"></a> [launch\_template\_delete\_on\_termination](#input\_launch\_template\_delete\_on\_termination) | Whether the root volume should be deleted on instance termination | `bool` | `true` | no |
 | <a name="input_launch_template_device_name"></a> [launch\_template\_device\_name](#input\_launch\_template\_device\_name) | The device name for the root volume | `string` | `"/dev/sda1"` | no |
 | <a name="input_launch_template_enable_monitoring"></a> [launch\_template\_enable\_monitoring](#input\_launch\_template\_enable\_monitoring) | Whether instance monitoring should be enabled | `bool` | `false` | no |
@@ -97,6 +130,7 @@
 | <a name="input_launch_template_userdata_file_path"></a> [launch\_template\_userdata\_file\_path](#input\_launch\_template\_userdata\_file\_path) | Path to the user data script file | `string` | `"userdata.sh"` | no |
 | <a name="input_launch_template_volume_size"></a> [launch\_template\_volume\_size](#input\_launch\_template\_volume\_size) | The size of the root volume for instances launched from the template (in GiB) | `number` | `20` | no |
 | <a name="input_launch_template_volume_type"></a> [launch\_template\_volume\_type](#input\_launch\_template\_volume\_type) | The type of volume for the root volume (e.g., 'gp2') | `string` | `"gp2"` | no |
+| <a name="input_load_balancer_type"></a> [load\_balancer\_type](#input\_load\_balancer\_type) | Type of the Load Balancer | `string` | `"application"` | no |
 | <a name="input_maintenance_window"></a> [maintenance\_window](#input\_maintenance\_window) | Maintenance window for the RDS instance | `string` | `"Sat:05:00-Sat:07:00"` | no |
 | <a name="input_master_db_availability_zone"></a> [master\_db\_availability\_zone](#input\_master\_db\_availability\_zone) | Availability zone for the RDS instance | `string` | `"ap-northeast-1a"` | no |
 | <a name="input_max_allocated_storage"></a> [max\_allocated\_storage](#input\_max\_allocated\_storage) | Maximum allocated storage for the RDS instance (in GB) | `string` | `"20"` | no |

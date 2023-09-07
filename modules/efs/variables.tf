@@ -4,14 +4,14 @@ variable "name" {
   default     = ""
 }
 
-variable "efs_subnet_ids" {
-  description = "List of private subnet IDs"
+variable "efs_mount_target_subnet_ids" {
+  description = "List of mount targets subnet IDs"
   type        = list(string)
   default     = []
 }
 
-variable "security_group_ids" {
-  description = "IDs of the security group for EFS"
+variable "efs_mount_target_security_group_ids" {
+  description = "IDs of the mount targets security group for EFS"
   type        = list(string)
   default     = []
 }

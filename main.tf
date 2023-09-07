@@ -1,21 +1,20 @@
-#################################################
+##################################################
 #   VPC
-#################################################
+##################################################
 module "vpc" {
-
   source = "shamimice03/vpc/aws"
 
-  vpc_name = "aws-ref-arch-vpc"
-  cidr     = "10.3.0.0/16"
+  vpc_name = var.vpc_name
+  cidr     = var.cidr
 
-  azs                 = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
-  public_subnet_cidr  = ["10.3.0.0/20", "10.3.16.0/20", "10.3.32.0/20"]
-  private_subnet_cidr = ["10.3.48.0/20", "10.3.64.0/20", "10.3.80.0/20"]
-  db_subnet_cidr      = ["10.3.96.0/20", "10.3.112.0/20", "10.3.128.0/20"]
+  azs                 = var.azs
+  public_subnet_cidr  = var.public_subnet_cidr
+  private_subnet_cidr = var.private_subnet_cidr
+  db_subnet_cidr      = var.db_subnet_cidr
 
-  enable_dns_hostnames      = true
-  enable_dns_support        = true
-  enable_single_nat_gateway = false
+  enable_dns_hostnames      = var.enable_dns_hostnames
+  enable_dns_support        = var.enable_dns_support
+  enable_single_nat_gateway = var.enable_single_nat_gateway
 
   tags = merge(
     { "Name" = var.vpc_name },
@@ -23,218 +22,267 @@ module "vpc" {
   )
 }
 
-####################################
-#    RDS
-####################################
+##################################################
+#    Primary Database
+##################################################
+locals {
+  rds_security_groups = [module.rds_sg.security_group_id]
+}
+
 
 module "rds" {
   source = "shamimice03/rds-blueprint/aws"
 
-  # DB Subnet Group
-  create_db_subnet_group = true
-  db_subnet_group_name   = "aws-ref-arch-db-subnet"
-  db_subnets             = module.vpc.db_subnet_id
+  create_db_subnet_group = var.create_db_subnet_group
+  db_subnet_group_name   = var.db_subnet_group_name
+  db_subnets             = coalesce(module.vpc.db_subnet_id, var.db_subnets)
 
   # Identify DB instance
   db_identifier = var.db_identifier
 
   # Create Initial Database
-  db_name = "userlist"
+  db_name = var.db_name
 
   # Credentials Settings
   # password will be auto generated
-  db_master_username                  = "admin"
-  iam_database_authentication_enabled = false
+  db_master_username                  = var.db_master_username
+  iam_database_authentication_enabled = var.iam_database_authentication_enabled
 
   # Availability and durability
-  multi_az = false
+  multi_az          = var.multi_az
+  availability_zone = var.master_db_availability_zone
 
   # Engine options
-  engine         = "mysql"
-  engine_version = "8.0"
+  engine         = var.engine
+  engine_version = var.engine_version
 
   # DB Instance configurations
-  instance_class = "db.t3.micro"
+  instance_class = var.instance_class
 
   # Storage
-  storage_type          = "gp2"
-  allocated_storage     = "20"
-  max_allocated_storage = "20"
+  storage_type          = var.storage_type
+  allocated_storage     = var.allocated_storage
+  max_allocated_storage = var.max_allocated_storage
 
   # Connectivity
-  db_security_groups  = [aws_security_group.rds_sg.id]
-  publicly_accessible = false
-  database_port       = 3306
+  db_security_groups  = coalesce(local.rds_security_groups, var.db_security_groups)
+  publicly_accessible = var.publicly_accessible
+  database_port       = var.database_port
 
   # Backup and Maintenance
-  backup_retention_period = 7
-  backup_window           = "03:00-05:00"
-  maintenance_window      = "Sat:05:00-Sat:07:00"
-  deletion_protection     = false
+  backup_retention_period = var.backup_retention_period
+  backup_window           = var.backup_window
+  maintenance_window      = var.maintenance_window
+  deletion_protection     = var.deletion_protection
+
 
   # Monitoring
-  enabled_cloudwatch_logs_exports = ["audit", "error"]
+  enabled_cloudwatch_logs_exports = var.enabled_cloudwatch_logs_exports
 
   # Others
-  apply_immediately        = true
-  delete_automated_backups = true
-  skip_final_snapshot      = true
+  apply_immediately        = var.apply_immediately
+  delete_automated_backups = var.delete_automated_backups
+  skip_final_snapshot      = var.skip_final_snapshot
 
   tags = merge(
     { "Name" = var.db_identifier },
     var.general_tags,
   )
-
 }
 
-#################################################
-#       DB Parameters
-#################################################
-module "db_parameters" {
+##################################################
+#    Read Replica
+##################################################
+module "rds_replica" {
+  source = "shamimice03/rds-blueprint/aws"
 
+  replicate_source_db                 = var.db_identifier
+  db_identifier                       = coalesce(var.replica_db_identifier, "${var.db_identifier}-replica")
+  multi_az                            = coalesce(var.replica_multi_az, var.multi_az)
+  availability_zone                   = coalesce(var.replica_db_availability_zone, var.master_db_availability_zone)
+  engine                              = coalesce(var.replica_engine, var.engine)
+  engine_version                      = coalesce(var.replica_engine_version, var.engine_version)
+  instance_class                      = coalesce(var.replica_instance_class, var.instance_class)
+  iam_database_authentication_enabled = coalesce(var.replica_iam_database_authentication_enabled, var.iam_database_authentication_enabled)
+  storage_type                        = coalesce(var.replica_storage_type, var.storage_type)
+  max_allocated_storage               = coalesce(var.replica_max_allocated_storage, var.max_allocated_storage)
+  db_security_groups                  = coalesce(local.rds_security_groups, var.db_security_groups)
+  publicly_accessible                 = coalesce(var.replica_publicly_accessible, var.publicly_accessible)
+  database_port                       = coalesce(var.replica_database_port, var.database_port)
+  backup_retention_period             = coalesce(var.replica_backup_retention_period, var.backup_retention_period)
+  backup_window                       = coalesce(var.replica_backup_window, var.backup_window)
+  maintenance_window                  = coalesce(var.replica_maintenance_window, var.maintenance_window)
+  deletion_protection                 = coalesce(var.replica_deletion_protection, var.deletion_protection)
+  enabled_cloudwatch_logs_exports     = coalesce(var.replica_enabled_cloudwatch_logs_exports, var.enabled_cloudwatch_logs_exports)
+  apply_immediately                   = coalesce(var.replica_apply_immediately, var.apply_immediately)
+  delete_automated_backups            = coalesce(var.replica_delete_automated_backups, var.delete_automated_backups)
+  skip_final_snapshot                 = coalesce(var.replica_skip_final_snapshot, var.skip_final_snapshot)
+
+  tags = merge(
+    { "Name" = "${var.db_identifier}-replica" },
+    var.general_tags,
+  )
+
+  depends_on = [module.rds]
+}
+
+##################################################
+# Store Database Parameters to SSM Parameter Store
+##################################################
+
+locals {
+  replica_db_identifier        = coalesce(var.replica_db_identifier, "${var.db_identifier}-replica")
+  primary_db_parameters_prefix = join("/", ["/rds", var.db_identifier, var.db_engine])
+  replica_db_parameters_prefix = join("/", ["/rds", local.replica_db_identifier, coalesce(var.replica_engine, var.engine)])
+  efs_parameters_prefix        = join("/", ["/efs", var.efs_name])
+}
+
+##################################################
+#       Primary Database Parameters
+##################################################
+module "primary_db_parameters" {
   source = "shamimice03/ssm-parameter/aws"
 
   parameters = [
     {
-      name        = "/application/db/DBUser"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
       value       = module.rds.db_instance_username
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBName"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
       value       = module.rds.db_name
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBEndpoint"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
       value       = module.rds.db_instance_endpoint
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBHostname"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
       value       = module.rds.db_instance_address
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBPort"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
       value       = module.rds.db_instance_port
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
     {
-      name        = "/application/db/DBPassword"
+      name        = join("/", [local.primary_db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
       value       = module.rds.db_instance_password
       key_alias   = "alias/aws/ssm"
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
   ]
 }
 
-####################################
-#   EFS
-####################################
-module "efs" {
-  source               = "./modules/efs"
-  name                 = format("%s-efs", var.project_name)
-  efs_subnet_ids       = module.vpc.private_subnet_id
-  security_group_ids   = [aws_security_group.efs_sg.id]
-  efs_encrypted        = true
-  efs_throughput_mode  = "bursting"
-  efs_performance_mode = "generalPurpose"
-  efs_transition_to_ia = "AFTER_30_DAYS"
-  efs_tags = {
-    Name        = "${var.project_name}-efs"
-    Environment = "Development"
-    Project     = "MyProject"
-  }
+##################################################
+#       Replica Database Parameters
+##################################################
+module "replica_db_parameters" {
+  source = "shamimice03/ssm-parameter/aws"
+
+  parameters = [
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBUser"])
+      type        = "String"
+      description = "Database Username"
+      value       = module.rds_replica.db_instance_username
+      tags        = var.general_tags
+    },
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBName"])
+      type        = "String"
+      description = "Initial Database Name"
+      value       = module.rds_replica.db_name
+      tags        = var.general_tags
+    },
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBEndpoint"])
+      type        = "String"
+      description = "Database Instance Endpoint"
+      value       = module.rds_replica.db_instance_endpoint
+      tags        = var.general_tags
+    },
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBHostname"])
+      type        = "String"
+      description = "Database Instance Hostname"
+      value       = module.rds_replica.db_instance_address
+      tags        = var.general_tags
+    },
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBPort"])
+      type        = "String"
+      description = "Database Instance Port"
+      value       = module.rds_replica.db_instance_port
+      tags        = var.general_tags
+    },
+    {
+      name        = join("/", [local.replica_db_parameters_prefix, "DBPassword"])
+      type        = "SecureString"
+      description = "Database password"
+      value       = module.rds_replica.db_instance_password
+      key_alias   = "alias/aws/ssm"
+      tags        = var.general_tags
+    },
+  ]
 }
 
 
-#################################################
+##################################################
+#   Elastic File System
+##################################################
+locals {
+  efs_mount_target_subnet_ids         = module.vpc.private_subnet_id
+  efs_mount_target_security_group_ids = [module.efs_sg.security_group_id]
+}
+
+
+module "efs" {
+  source                              = "./modules/efs"
+  name                                = var.efs_name
+  efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
+  efs_mount_target_security_group_ids = local.efs_mount_target_security_group_ids
+  efs_encrypted                       = var.efs_encrypted
+  efs_throughput_mode                 = var.efs_throughput_mode
+  efs_performance_mode                = var.efs_performance_mode
+  efs_transition_to_ia                = var.efs_transition_to_ia
+
+  efs_tags = merge(
+    { "Name" = var.efs_name },
+    var.general_tags,
+  )
+}
+
+##################################################
 #       EFS Parameters
-#################################################
+##################################################
 module "efs_parameters" {
 
   source = "shamimice03/ssm-parameter/aws"
 
   parameters = [
     {
-      name        = "/application/efs/EFSID"
+      name        = join("/", [local.efs_parameters_prefix, "EFSID"])
       type        = "String"
       description = "The ID that identifies the file system"
       value       = module.efs.id
-      tags = {
-        "Name" = var.project_name
-      }
+      tags        = var.general_tags
     },
   ]
 }
-
-#################################################
-#       Demo EC2 on public subnet
-#################################################
-resource "aws_security_group" "demo_sg" {
-  name        = "${var.project_name}-demo-sg"
-  description = "Allow inbound traffic"
-  vpc_id      = module.vpc.vpc_id
-
-  dynamic "ingress" {
-    for_each = [22]
-    iterator = port
-    content {
-      description = "Traffic from anywhere"
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-# module "ec2_instance" {
-#   source = "terraform-aws-modules/ec2-instance/aws"
-
-#   name = "access-test"
-
-#   instance_type          = "t2.micro"
-#   key_name               = "ec2-access"
-#   monitoring             = false
-#   vpc_security_group_ids = [aws_security_group.public_sg.id, aws_security_group.demo_sg.id]
-#   subnet_id              = module.vpc.public_subnet_id[0]
-#   iam_instance_profile   = module.instance_profile.profile_name
-
-#   tags = {
-#     Terraform   = "true"
-#     Environment = "dev"
-#   }
-# }

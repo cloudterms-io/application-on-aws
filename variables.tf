@@ -487,7 +487,7 @@ variable "launch_template_sg_ids" {
 variable "launch_template_device_name" {
   description = "The device name for the root volume"
   type        = string
-  default     = "/dev/sda1"
+  default     = "/dev/xvda"
 }
 
 variable "launch_template_volume_size" {
@@ -758,8 +758,8 @@ variable "asg_max_size" {
 
 variable "asg_wait_for_capacity_timeout" {
   description = "Timeout for waiting for the desired capacity to be reached"
-  type        = number
-  default     = 0
+  type        = string
+  default     = "10m"
 }
 
 variable "asg_health_check_type" {

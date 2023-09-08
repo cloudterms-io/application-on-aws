@@ -52,8 +52,8 @@ module "alb_sg" {
   ingress_cidr_blocks = ["0.0.0.0/0"]
   ingress_rules       = ["http-80-tcp", "https-443-tcp"]
 
-  egress_rules       = ["all-tcp"]
-  egress_cidr_blocks = var.public_subnet_cidr
+  egress_rules       = ["all-all"]
+  egress_cidr_blocks = ["0.0.0.0/0"]
 }
 
 module "ec2_sg" {
@@ -71,7 +71,7 @@ module "ec2_sg" {
     },
   ]
 
-  egress_rules       = ["all-tcp"]
+  egress_rules       = ["all-all"]
   egress_cidr_blocks = ["0.0.0.0/0"]
 }
 

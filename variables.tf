@@ -15,7 +15,7 @@ variable "general_tags" {
   }
 }
 
-######################## VPC ###########################
+######################## VPC ########################
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -69,49 +69,73 @@ variable "enable_single_nat_gateway" {
   type        = bool
   default     = false
 }
-######################## Secuirity Groups ###########################
+
+######################## Secuirity Groups ########################
+variable "create_alb_sg" {
+  description = "Whether to create the Application Load Balancer (ALB) security group."
+  type        = bool
+  default     = true
+}
+
 variable "alb_sg_name" {
   description = "Name of the ALB security group"
   type        = string
-  default     = "aws-ref-arch-alb-sg"
+  default     = "aws-ref-alb-sg"
+}
+
+variable "create_ec2_sg" {
+  description = "Whether to create the EC2 instance security group."
+  type        = bool
+  default     = true
 }
 
 variable "ec2_sg_name" {
   description = "Name of the ec2 security group"
   type        = string
-  default     = "aws-ref-arch-public-sg"
+  default     = "aws-ref-ec2-sg"
+}
+
+variable "create_efs_sg" {
+  description = "Whether to create the Elastic File System (EFS) security group."
+  type        = bool
+  default     = true
 }
 
 variable "efs_sg_name" {
   description = "Name of the EFS security group"
   type        = string
-  default     = "aws-ref-arch-efs-sg"
+  default     = "aws-ref-efs-sg"
+}
+
+variable "create_rds_sg" {
+  description = "Whether to create the RDS security group."
+  type        = bool
+  default     = true
 }
 
 variable "rds_sg_name" {
   description = "Name of the RDS security group"
   type        = string
-  default     = "aws-ref-arch-rds-sg"
+  default     = "aws-ref-rds-sg"
+}
+
+variable "create_ssh_sg" {
+  description = "Whether to create the SSH security group."
+  type        = bool
+  default     = true
 }
 
 variable "ssh_sg_name" {
   description = "Name of the SSH security group"
   type        = string
-  default     = "aws-ref-arch-ssh-sg"
+  default     = "aws-ref-ssh-sg"
 }
-
 
 ######################## Primary Database ###########################
 variable "db_identifier" {
   description = "The name of the RDS instance"
   type        = string
   default     = "aws-ref-arch-db"
-}
-
-variable "db_engine" {
-  description = "The type of DB Engine"
-  type        = string
-  default     = "mysql"
 }
 
 variable "create_db_subnet_group" {
@@ -264,7 +288,7 @@ variable "skip_final_snapshot" {
   default     = true
 }
 
-######################## Read Replica ###########################
+######################## Read Replica ########################
 variable "replica_db_identifier" {
   description = "Identifier for the RDS replica instance"
   type        = string
@@ -387,6 +411,18 @@ variable "efs_name" {
   default     = "aws-ref-arch-efs"
 }
 
+variable "efs_mount_target_subnet_ids" {
+  description = "List of subnet IDs for EFS mount targets"
+  type        = list(string)
+  default     = []
+}
+
+variable "efs_mount_target_security_group_ids" {
+  description = "List of security group IDs for EFS mount targets"
+  type        = list(string)
+  default     = []
+}
+
 variable "efs_encrypted" {
   description = "Whether to enable encryption for the EFS file system"
   type        = bool
@@ -439,7 +475,13 @@ variable "launch_template_update_default_version" {
 variable "launch_template_name_prefix" {
   description = "Creates a unique name beginning with the specified prefix"
   type        = string
-  default     = "aws-ref-arch"
+  default     = "aws-ref"
+}
+
+variable "launch_template_sg_ids" {
+  description = "List of security group IDs for the launch template"
+  type        = list(string)
+  default     = []
 }
 
 variable "launch_template_device_name" {
@@ -482,6 +524,205 @@ variable "launch_template_resource_type" {
   description = "The type of resource to tag"
   type        = string
   default     = "instance"
+}
+
+######################## ACM - Route53 ########################
+variable "acm_domain_name" {
+  description = "Domain name for ACM certificate"
+  type        = string
+  default     = "demo.kubecloud.net"
+}
+
+variable "acm_validation_method" {
+  description = "Validation method for ACM certificate"
+  type        = string
+  default     = "DNS"
+}
+
+variable "acm_hosted_zone_name" {
+  description = "Hosted zone name for DNS validation"
+  type        = string
+  default     = "kubecloud.net"
+}
+
+variable "acm_private_zone" {
+  description = "Whether the hosted zone is private or not"
+  type        = bool
+  default     = false
+}
+
+variable "acm_allow_record_overwrite" {
+  description = "Allow record overwrite in DNS validation"
+  type        = bool
+  default     = true
+}
+
+variable "acm_ttl" {
+  description = "Time to live (TTL) for DNS records"
+  type        = number
+  default     = 60
+}
+
+
+######################## ALB ########################
+variable "alb_name_prefix" {
+  description = "Prefix for the Application Load Balancer name"
+  type        = string
+  default     = "awsref"
+}
+
+variable "load_balancer_type" {
+  description = "Type of the Load Balancer"
+  type        = string
+  default     = "application"
+}
+
+variable "alb_subnets" {
+  description = "List of subnet IDs for the Application Load Balancer (ALB)"
+  type        = list(string)
+  default     = []
+}
+
+variable "alb_security_groups" {
+  description = "List of security group IDs for the Application Load Balancer (ALB)"
+  type        = list(string)
+  default     = []
+}
+
+variable "alb_target_group_name_prefix" {
+  description = "Prefix for the ALB target group name"
+  type        = string
+  default     = "ref-tg"
+}
+
+variable "alb_certificate_arn" {
+  description = "ARN of the ACM certificate for the Application Load Balancer (ALB)"
+  type        = string
+  default     = ""
+}
+
+######################### ALB - Route53 ###################
+variable "alb_route53_zone_name" {
+  description = "The DNS zone name"
+  type        = string
+  default     = "kubecloud.net."
+}
+
+variable "alb_route53_record_name_1" {
+  description = "The DNS record name for the first ALB record"
+  type        = string
+  default     = "demo.kubecloud.net"
+}
+
+variable "alb_route53_record_name_2" {
+  description = "The DNS record name for the second ALB record"
+  type        = string
+  default     = "www.demo.kubecloud.net"
+}
+
+variable "alb_route53_record_type" {
+  description = "The DNS record type for ALB records"
+  type        = string
+  default     = "A"
+}
+
+variable "alb_route53_private_zone" {
+  description = "Whether the DNS zone is private or not"
+  type        = bool
+  default     = false
+}
+
+variable "alb_route53_evaluate_target_health" {
+  description = "Whether to evaluate the target health of the ALB"
+  type        = bool
+  default     = true
+}
+
+######################## Create custom policy ########################
+variable "create_custom_policy" {
+  description = "Whether to create custom policy"
+  type        = bool
+  default     = true
+}
+
+variable "custom_iam_policy_name_prefix" {
+  description = "Prefix for the IAM policy name. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "ListAllS3Buckets"
+}
+
+variable "custom_iam_policy_path" {
+  description = "The path for the IAM policy. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "/"
+}
+
+variable "custom_iam_policy_description" {
+  description = "Description for the IAM policy. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = "List all s3 buckets"
+}
+
+variable "custom_iam_policy_json" {
+  description = "JSON policy document. Required if `create_custom_policy` set to `true`"
+  type        = string
+  default     = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+######################## IAM Instance Profile ########################
+variable "instance_profile_create_instance_profile" {
+  description = "Whether to create an instance profile"
+  type        = bool
+  default     = true
+}
+
+variable "instance_profile_role_name" {
+  description = "Name of the IAM role associated with the instance profile"
+  type        = string
+  default     = "aws-ref-instance-role"
+}
+
+variable "instance_profile_instance_profile_name" {
+  description = "Name of the IAM instance profile"
+  type        = string
+  default     = "aws-ref-instance-role"
+}
+
+variable "instance_profile_managed_policy_arns" {
+  description = "List of ARNs of managed policies to attach to the role"
+  type        = list(string)
+  default = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
+  ]
+}
+
+variable "instance_profile_custom_policy_arns" {
+  description = "List of ARNs of custom policies(created outside of this project) to attach to the role"
+  type        = list(string)
+  default = [
+    "arn:aws:iam::391178969547:policy/AllowFromJapan",
+    "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices",
+  ]
+}
+
+variable "instance_profile_role_path" {
+  description = "The path for the IAM role"
+  type        = string
+  default     = "/"
 }
 
 ######################## AutoScaling Group  ########################
@@ -539,182 +780,3 @@ variable "asg_enable_monitoring" {
   default     = true
 }
 
-######################## ACM - Route53 ########################
-variable "acm_domain_name" {
-  description = "Domain name for ACM certificate"
-  type        = string
-  default     = "demo.kubecloud.net"
-}
-
-variable "acm_validation_method" {
-  description = "Validation method for ACM certificate"
-  type        = string
-  default     = "DNS"
-}
-
-variable "acm_hosted_zone_name" {
-  description = "Hosted zone name for DNS validation"
-  type        = string
-  default     = "kubecloud.net"
-}
-
-variable "acm_private_zone" {
-  description = "Whether the hosted zone is private or not"
-  type        = bool
-  default     = false
-}
-
-variable "acm_allow_record_overwrite" {
-  description = "Allow record overwrite in DNS validation"
-  type        = bool
-  default     = true
-}
-
-variable "acm_ttl" {
-  description = "Time to live (TTL) for DNS records"
-  type        = number
-  default     = 60
-}
-
-######################## ALB ########################
-variable "alb_name_prefix" {
-  description = "Prefix for the Application Load Balancer name"
-  type        = string
-  default     = "awsref"
-}
-
-variable "load_balancer_type" {
-  description = "Type of the Load Balancer"
-  type        = string
-  default     = "application"
-}
-
-variable "alb_target_group_name_prefix" {
-  description = "Prefix for the ALB target group name"
-  type        = string
-  default     = "ref-tg"
-}
-
-######################### ALB - Route53 ###################
-variable "alb_route53_zone_name" {
-  description = "The DNS zone name"
-  type        = string
-  default     = "kubecloud.net."
-}
-
-variable "alb_route53_record_name_1" {
-  description = "The DNS record name for the first ALB record"
-  type        = string
-  default     = "demo.kubecloud.net"
-}
-
-variable "alb_route53_record_name_2" {
-  description = "The DNS record name for the second ALB record"
-  type        = string
-  default     = "www.demo.kubecloud.net"
-}
-
-variable "alb_route53_record_type" {
-  description = "The DNS record type for ALB records"
-  type        = string
-  default     = "A"
-}
-
-variable "alb_route53_private_zone" {
-  description = "Whether the DNS zone is private or not"
-  type        = bool
-  default     = false
-}
-
-variable "alb_route53_evaluate_target_health" {
-  description = "Whether to evaluate the target health of the ALB"
-  type        = bool
-  default     = true
-}
-
-################# IAM Instance Profile ###############
-variable "instance_profile_create_instance_profile" {
-  description = "Whether to create an instance profile"
-  type        = bool
-  default     = true
-}
-
-variable "instance_profile_role_name" {
-  description = "Name of the IAM role associated with the instance profile"
-  type        = string
-  default     = "aws-ref-instance-role"
-}
-
-variable "instance_profile_instance_profile_name" {
-  description = "Name of the IAM instance profile"
-  type        = string
-  default     = "aws-ref-instance-role"
-}
-
-variable "instance_profile_managed_policy_arns" {
-  description = "List of ARNs of managed policies to attach to the role"
-  type        = list(string)
-  default = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
-  ]
-}
-
-variable "instance_profile_custom_policy_arns" {
-  description = "List of ARNs of custom policies(created outside of this project) to attach to the role"
-  type        = list(string)
-  default = [
-    "arn:aws:iam::391178969547:policy/AllowFromJapan",
-    "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices",
-  ]
-}
-
-variable "instance_profile_role_path" {
-  description = "The path for the IAM role"
-  type        = string
-  default     = "/"
-}
-
-#################### Create custom policy ####################
-variable "create_custom_policy" {
-  description = "Whether to create custom policy"
-  type        = bool
-  default     = true
-}
-
-variable "custom_iam_policy_name_prefix" {
-  description = "Prefix for the IAM policy name. Required if `create_custom_policy` set to `true`"
-  type        = string
-  default     = "ListAllS3Buckets"
-}
-
-variable "custom_iam_policy_path" {
-  description = "The path for the IAM policy. Required if `create_custom_policy` set to `true`"
-  type        = string
-  default     = "/"
-}
-
-variable "custom_iam_policy_description" {
-  description = "Description for the IAM policy. Required if `create_custom_policy` set to `true`"
-  type        = string
-  default     = "List all s3 buckets"
-}
-
-variable "custom_iam_policy_json" {
-  description = "JSON policy document. Required if `create_custom_policy` set to `true`"
-  type        = string
-  default     = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListAllMyBuckets",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}

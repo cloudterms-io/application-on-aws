@@ -62,7 +62,9 @@
 | <a name="input_alb_route53_record_name_2"></a> [alb\_route53\_record\_name\_2](#input\_alb\_route53\_record\_name\_2) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
 | <a name="input_alb_route53_record_type"></a> [alb\_route53\_record\_type](#input\_alb\_route53\_record\_type) | The DNS record type for ALB records | `string` | `"A"` | no |
 | <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net."` | no |
-| <a name="input_alb_sg_name"></a> [alb\_sg\_name](#input\_alb\_sg\_name) | Name of the ALB security group | `string` | `"aws-ref-arch-alb-sg"` | no |
+| <a name="input_alb_security_groups"></a> [alb\_security\_groups](#input\_alb\_security\_groups) | List of security group IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
+| <a name="input_alb_sg_name"></a> [alb\_sg\_name](#input\_alb\_sg\_name) | Name of the ALB security group | `string` | `"aws-ref-alb-sg"` | no |
+| <a name="input_alb_subnets"></a> [alb\_subnets](#input\_alb\_subnets) | List of subnet IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
 | <a name="input_alb_target_group_name_prefix"></a> [alb\_target\_group\_name\_prefix](#input\_alb\_target\_group\_name\_prefix) | Prefix for the ALB target group name | `string` | `"ref-tg"` | no |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | Allocated storage for the RDS instance (in GB) | `string` | `"20"` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Apply changes immediately or during the next maintenance window | `bool` | `true` | no |
@@ -79,14 +81,18 @@
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | Backup retention period (in days) for the RDS instance | `number` | `7` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | Preferred backup window for the RDS instance | `string` | `"03:00-05:00"` | no |
 | <a name="input_cidr"></a> [cidr](#input\_cidr) | CIDR block for the VPC | `string` | `"10.3.0.0/16"` | no |
+| <a name="input_create_alb_sg"></a> [create\_alb\_sg](#input\_create\_alb\_sg) | Whether to create the Application Load Balancer (ALB) security group. | `bool` | `true` | no |
 | <a name="input_create_custom_policy"></a> [create\_custom\_policy](#input\_create\_custom\_policy) | Whether to create custom policy | `bool` | `true` | no |
 | <a name="input_create_db_subnet_group"></a> [create\_db\_subnet\_group](#input\_create\_db\_subnet\_group) | Create a new DB subnet group | `bool` | `true` | no |
+| <a name="input_create_ec2_sg"></a> [create\_ec2\_sg](#input\_create\_ec2\_sg) | Whether to create the EC2 instance security group. | `bool` | `true` | no |
+| <a name="input_create_efs_sg"></a> [create\_efs\_sg](#input\_create\_efs\_sg) | Whether to create the Elastic File System (EFS) security group. | `bool` | `true` | no |
+| <a name="input_create_rds_sg"></a> [create\_rds\_sg](#input\_create\_rds\_sg) | Whether to create the RDS security group. | `bool` | `true` | no |
+| <a name="input_create_ssh_sg"></a> [create\_ssh\_sg](#input\_create\_ssh\_sg) | Whether to create the SSH security group. | `bool` | `true` | no |
 | <a name="input_custom_iam_policy_description"></a> [custom\_iam\_policy\_description](#input\_custom\_iam\_policy\_description) | Description for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"List all s3 buckets"` | no |
 | <a name="input_custom_iam_policy_json"></a> [custom\_iam\_policy\_json](#input\_custom\_iam\_policy\_json) | JSON policy document. Required if `create_custom_policy` set to `true` | `string` | `"{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListAllMyBuckets\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"` | no |
 | <a name="input_custom_iam_policy_name_prefix"></a> [custom\_iam\_policy\_name\_prefix](#input\_custom\_iam\_policy\_name\_prefix) | Prefix for the IAM policy name. Required if `create_custom_policy` set to `true` | `string` | `"ListAllS3Buckets"` | no |
 | <a name="input_custom_iam_policy_path"></a> [custom\_iam\_policy\_path](#input\_custom\_iam\_policy\_path) | The path for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"/"` | no |
 | <a name="input_database_port"></a> [database\_port](#input\_database\_port) | Port for the RDS instance | `number` | `3306` | no |
-| <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | The type of DB Engine | `string` | `"mysql"` | no |
 | <a name="input_db_identifier"></a> [db\_identifier](#input\_db\_identifier) | The name of the RDS instance | `string` | `"aws-ref-arch-db"` | no |
 | <a name="input_db_master_username"></a> [db\_master\_username](#input\_db\_master\_username) | Master username for the RDS instance | `string` | `"admin"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name of the initial database | `string` | `"userlist"` | no |
@@ -96,11 +102,13 @@
 | <a name="input_db_subnets"></a> [db\_subnets](#input\_db\_subnets) | List of DB subnets for the RDS instance | `list(string)` | `[]` | no |
 | <a name="input_delete_automated_backups"></a> [delete\_automated\_backups](#input\_delete\_automated\_backups) | Delete automated backups when the RDS instance is deleted | `bool` | `true` | no |
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | Enable or disable deletion protection for the RDS instance | `bool` | `false` | no |
-| <a name="input_ec2_sg_name"></a> [ec2\_sg\_name](#input\_ec2\_sg\_name) | Name of the ec2 security group | `string` | `"aws-ref-arch-public-sg"` | no |
+| <a name="input_ec2_sg_name"></a> [ec2\_sg\_name](#input\_ec2\_sg\_name) | Name of the ec2 security group | `string` | `"aws-ref-ec2-sg"` | no |
 | <a name="input_efs_encrypted"></a> [efs\_encrypted](#input\_efs\_encrypted) | Whether to enable encryption for the EFS file system | `bool` | `true` | no |
+| <a name="input_efs_mount_target_security_group_ids"></a> [efs\_mount\_target\_security\_group\_ids](#input\_efs\_mount\_target\_security\_group\_ids) | List of security group IDs for EFS mount targets | `list(string)` | `[]` | no |
+| <a name="input_efs_mount_target_subnet_ids"></a> [efs\_mount\_target\_subnet\_ids](#input\_efs\_mount\_target\_subnet\_ids) | List of subnet IDs for EFS mount targets | `list(string)` | `[]` | no |
 | <a name="input_efs_name"></a> [efs\_name](#input\_efs\_name) | Name of the Elastic File System | `string` | `"aws-ref-arch-efs"` | no |
 | <a name="input_efs_performance_mode"></a> [efs\_performance\_mode](#input\_efs\_performance\_mode) | The performance mode for the EFS file system (e.g., 'generalPurpose' or 'maxIO') | `string` | `"generalPurpose"` | no |
-| <a name="input_efs_sg_name"></a> [efs\_sg\_name](#input\_efs\_sg\_name) | Name of the EFS security group | `string` | `"aws-ref-arch-efs-sg"` | no |
+| <a name="input_efs_sg_name"></a> [efs\_sg\_name](#input\_efs\_sg\_name) | Name of the EFS security group | `string` | `"aws-ref-efs-sg"` | no |
 | <a name="input_efs_throughput_mode"></a> [efs\_throughput\_mode](#input\_efs\_throughput\_mode) | The throughput mode for the EFS file system (e.g., 'bursting' or 'provisioned') | `string` | `"bursting"` | no |
 | <a name="input_efs_transition_to_ia"></a> [efs\_transition\_to\_ia](#input\_efs\_transition\_to\_ia) | The lifecycle policy transition for files to Infrequent Access (IA) storage | `string` | `"AFTER_30_DAYS"` | no |
 | <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | Enable DNS hostnames for the VPC | `bool` | `true` | no |
@@ -124,8 +132,9 @@
 | <a name="input_launch_template_image_id"></a> [launch\_template\_image\_id](#input\_launch\_template\_image\_id) | The AMI from which to launch the instance. Default will be `Amazonlinux2` | `string` | `""` | no |
 | <a name="input_launch_template_instance_type"></a> [launch\_template\_instance\_type](#input\_launch\_template\_instance\_type) | The EC2 instance type for instances launched from the template | `string` | `"t2.micro"` | no |
 | <a name="input_launch_template_key_name"></a> [launch\_template\_key\_name](#input\_launch\_template\_key\_name) | The name of the SSH key pair to associate with instances launched from the template | `string` | `"ec2-access"` | no |
-| <a name="input_launch_template_name_prefix"></a> [launch\_template\_name\_prefix](#input\_launch\_template\_name\_prefix) | Creates a unique name beginning with the specified prefix | `string` | `"aws-ref-arch"` | no |
+| <a name="input_launch_template_name_prefix"></a> [launch\_template\_name\_prefix](#input\_launch\_template\_name\_prefix) | Creates a unique name beginning with the specified prefix | `string` | `"aws-ref"` | no |
 | <a name="input_launch_template_resource_type"></a> [launch\_template\_resource\_type](#input\_launch\_template\_resource\_type) | The type of resource to tag | `string` | `"instance"` | no |
+| <a name="input_launch_template_sg_ids"></a> [launch\_template\_sg\_ids](#input\_launch\_template\_sg\_ids) | List of security group IDs for the launch template | `list(string)` | `[]` | no |
 | <a name="input_launch_template_update_default_version"></a> [launch\_template\_update\_default\_version](#input\_launch\_template\_update\_default\_version) | Flag to update the default version of the launch template | `bool` | `true` | no |
 | <a name="input_launch_template_userdata_file_path"></a> [launch\_template\_userdata\_file\_path](#input\_launch\_template\_userdata\_file\_path) | Path to the user data script file | `string` | `"userdata.sh"` | no |
 | <a name="input_launch_template_volume_size"></a> [launch\_template\_volume\_size](#input\_launch\_template\_volume\_size) | The size of the root volume for instances launched from the template (in GiB) | `number` | `20` | no |
@@ -139,7 +148,7 @@
 | <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Name of the project | `string` | `"aws-ref-architecture"` | no |
 | <a name="input_public_subnet_cidr"></a> [public\_subnet\_cidr](#input\_public\_subnet\_cidr) | CIDR blocks for public subnets | `list(string)` | <pre>[<br>  "10.3.0.0/20",<br>  "10.3.16.0/20"<br>]</pre> | no |
 | <a name="input_publicly_accessible"></a> [publicly\_accessible](#input\_publicly\_accessible) | Make the RDS instance publicly accessible | `bool` | `false` | no |
-| <a name="input_rds_sg_name"></a> [rds\_sg\_name](#input\_rds\_sg\_name) | Name of the RDS security group | `string` | `"aws-ref-arch-rds-sg"` | no |
+| <a name="input_rds_sg_name"></a> [rds\_sg\_name](#input\_rds\_sg\_name) | Name of the RDS security group | `string` | `"aws-ref-rds-sg"` | no |
 | <a name="input_replica_apply_immediately"></a> [replica\_apply\_immediately](#input\_replica\_apply\_immediately) | Apply changes immediately or during the next maintenance window for the replica | `bool` | `null` | no |
 | <a name="input_replica_backup_retention_period"></a> [replica\_backup\_retention\_period](#input\_replica\_backup\_retention\_period) | Backup retention period (in days) for the RDS replica instance | `number` | `null` | no |
 | <a name="input_replica_backup_window"></a> [replica\_backup\_window](#input\_replica\_backup\_window) | Preferred backup window for the RDS replica instance | `string` | `""` | no |
@@ -160,7 +169,7 @@
 | <a name="input_replica_skip_final_snapshot"></a> [replica\_skip\_final\_snapshot](#input\_replica\_skip\_final\_snapshot) | Skip the final DB snapshot when the RDS replica instance is deleted | `bool` | `null` | no |
 | <a name="input_replica_storage_type"></a> [replica\_storage\_type](#input\_replica\_storage\_type) | Storage type for the RDS replica instance | `string` | `""` | no |
 | <a name="input_skip_final_snapshot"></a> [skip\_final\_snapshot](#input\_skip\_final\_snapshot) | Skip the final DB snapshot when the RDS instance is deleted | `bool` | `true` | no |
-| <a name="input_ssh_sg_name"></a> [ssh\_sg\_name](#input\_ssh\_sg\_name) | Name of the SSH security group | `string` | `"aws-ref-arch-ssh-sg"` | no |
+| <a name="input_ssh_sg_name"></a> [ssh\_sg\_name](#input\_ssh\_sg\_name) | Name of the SSH security group | `string` | `"aws-ref-ssh-sg"` | no |
 | <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | Storage type for the RDS instance | `string` | `"gp2"` | no |
 | <a name="input_vpc_name"></a> [vpc\_name](#input\_vpc\_name) | Name of the VPC | `string` | `"aws-ref-arch-vpc"` | no |
 

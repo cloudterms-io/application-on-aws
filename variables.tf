@@ -595,11 +595,11 @@ variable "alb_target_group_name_prefix" {
   default     = "ref-tg"
 }
 
-variable "alb_certificate_arn" {
-  description = "ARN of the ACM certificate for the Application Load Balancer (ALB)"
-  type        = string
-  default     = ""
-}
+# variable "alb_certificate_arn" {
+#   description = "ARN of the ACM certificate for the Application Load Balancer (ALB)"
+#   type        = string
+#   default     = ""
+# }
 
 ######################### ALB - Route53 ###################
 variable "alb_route53_zone_name" {
@@ -779,4 +779,3 @@ variable "asg_enable_monitoring" {
   type        = bool
   default     = true
 }
-

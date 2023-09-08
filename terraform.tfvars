@@ -88,7 +88,7 @@ efs_throughput_mode                 = "bursting"
 efs_performance_mode                = "generalPurpose"
 efs_transition_to_ia                = "AFTER_30_DAYS"
 
-### Launch Template                           
+### Launch Template
 launch_template_image_id               = "" # This will be populated by data.aws_ami.amazonlinux2.id
 launch_template_instance_type          = "t2.micro"
 launch_template_key_name               = "ec2-access"

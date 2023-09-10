@@ -565,12 +565,16 @@ module "alb" {
 locals {
   alb_dns_name = module.alb.lb_dns_name
   alb_zone_id  = module.alb.lb_zone_id
+
+  alb_route53_record_name_1 = coalesce(var.acm_domain_name_1, var.alb_route53_record_name_1)
+  alb_route53_record_name_2 = coalesce(var.acm_domain_name_2, var.alb_route53_record_name_2)
+
 }
 
 module "alb_route53_record_1" {
   source                 = "./modules/alb-route53"
   zone_name              = var.alb_route53_zone_name
-  record_name            = var.alb_route53_record_name_1
+  record_name            = local.alb_route53_record_name_1
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id
@@ -581,7 +585,7 @@ module "alb_route53_record_1" {
 module "alb_route53_record_2" {
   source                 = "./modules/alb-route53"
   zone_name              = var.alb_route53_zone_name
-  record_name            = var.alb_route53_record_name_2
+  record_name            = local.alb_route53_record_name_2
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id

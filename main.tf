@@ -456,14 +456,14 @@ module "acm_route53" {
 
   source = "shamimice03/acm-route53/aws"
 
-  domain_name            = var.acm_domain_name_1
+  domain_name            = var.acm_domain_name
   validation_method      = var.acm_validation_method
   hosted_zone_name       = var.acm_hosted_zone_name
   private_zone           = var.acm_private_zone
   allow_record_overwrite = var.acm_allow_record_overwrite
   ttl                    = var.acm_ttl
   tags = merge(
-    { "Name" = var.acm_domain_name_1 },
+    { "Name" = var.acm_domain_name },
     var.general_tags,
   )
 }
@@ -472,14 +472,14 @@ module "acm_route53_www" {
 
   source = "shamimice03/acm-route53/aws"
 
-  domain_name            = var.acm_domain_name_2
+  domain_name            = var.acm_domain_name_www
   validation_method      = var.acm_validation_method
   hosted_zone_name       = var.acm_hosted_zone_name
   private_zone           = var.acm_private_zone
   allow_record_overwrite = var.acm_allow_record_overwrite
   ttl                    = var.acm_ttl
   tags = merge(
-    { "Name" = var.acm_domain_name_2 },
+    { "Name" = var.acm_domain_name_www },
     var.general_tags,
   )
 }
@@ -566,15 +566,15 @@ locals {
   alb_dns_name = module.alb.lb_dns_name
   alb_zone_id  = module.alb.lb_zone_id
 
-  alb_route53_record_name_1 = coalesce(var.acm_domain_name_1, var.alb_route53_record_name_1)
-  alb_route53_record_name_2 = coalesce(var.acm_domain_name_2, var.alb_route53_record_name_2)
+  alb_route53_record_name     = coalesce(var.acm_domain_name, var.alb_route53_record_name)
+  alb_route53_record_name_www = coalesce(var.acm_domain_name_www, var.alb_route53_record_name_www)
 
 }
 
-module "alb_route53_record_1" {
+module "alb_route53_record" {
   source                 = "./modules/alb-route53"
   zone_name              = var.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name_1
+  record_name            = local.alb_route53_record_name
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id
@@ -582,10 +582,10 @@ module "alb_route53_record_1" {
   evaluate_target_health = var.alb_route53_evaluate_target_health
 }
 
-module "alb_route53_record_2" {
+module "alb_route53_record_www" {
   source                 = "./modules/alb-route53"
   zone_name              = var.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name_2
+  record_name            = local.alb_route53_record_name_www
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id

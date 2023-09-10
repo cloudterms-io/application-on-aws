@@ -527,13 +527,13 @@ variable "launch_template_resource_type" {
 }
 
 ######################## ACM - Route53 ########################
-variable "acm_domain_name_1" {
+variable "acm_domain_name" {
   description = "Domain name for ACM certificate"
   type        = string
   default     = "demo.kubecloud.net"
 }
 
-variable "acm_domain_name_2" {
+variable "acm_domain_name_www" {
   description = "Domain name for ACM certificate"
   type        = string
   default     = "www.demo.kubecloud.net"
@@ -614,13 +614,13 @@ variable "alb_route53_zone_name" {
   default     = "kubecloud.net."
 }
 
-variable "alb_route53_record_name_1" {
+variable "alb_route53_record_name" {
   description = "The DNS record name for the first ALB record"
   type        = string
   default     = "demo.kubecloud.net"
 }
 
-variable "alb_route53_record_name_2" {
+variable "alb_route53_record_name_www" {
   description = "The DNS record name for the second ALB record"
   type        = string
   default     = "www.demo.kubecloud.net"

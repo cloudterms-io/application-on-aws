@@ -104,8 +104,8 @@ launch_template_userdata_file_path     = "userdata.sh"
 launch_template_resource_type          = "instance"
 
 ### ACM - Route53
-acm_domain_name_1          = "demo.kubecloud.net"
-acm_domain_name_2          = "www.demo.kubecloud.net"
+acm_domain_name            = "demo.kubecloud.net"
+acm_domain_name_www        = "www.demo.kubecloud.net"
 acm_hosted_zone_name       = "kubecloud.net"
 acm_validation_method      = "DNS"
 acm_private_zone           = false
@@ -121,8 +121,8 @@ alb_target_group_name_prefix = "ref-tg"
 #alb_certificate_arn          = "" # This will be populated by module.acm_route53.certificate_arn
 
 ### ALB - Route53
-alb_route53_record_name_1          = "demo.kubecloud.net"
-alb_route53_record_name_2          = "www.demo.kubecloud.net"
+alb_route53_record_name            = "demo.kubecloud.net"
+alb_route53_record_name_www        = "www.demo.kubecloud.net"
 alb_route53_zone_name              = "kubecloud.net"
 alb_route53_record_type            = "A"
 alb_route53_private_zone           = false

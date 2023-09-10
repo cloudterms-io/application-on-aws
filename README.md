@@ -23,8 +23,8 @@
 | <a name="module_acm_route53"></a> [acm\_route53](#module\_acm\_route53) | shamimice03/acm-route53/aws | n/a |
 | <a name="module_acm_route53_www"></a> [acm\_route53\_www](#module\_acm\_route53\_www) | shamimice03/acm-route53/aws | n/a |
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | n/a |
-| <a name="module_alb_route53_record_1"></a> [alb\_route53\_record\_1](#module\_alb\_route53\_record\_1) | ./modules/alb-route53 | n/a |
-| <a name="module_alb_route53_record_2"></a> [alb\_route53\_record\_2](#module\_alb\_route53\_record\_2) | ./modules/alb-route53 | n/a |
+| <a name="module_alb_route53_record"></a> [alb\_route53\_record](#module\_alb\_route53\_record) | ./modules/alb-route53 | n/a |
+| <a name="module_alb_route53_record_www"></a> [alb\_route53\_record\_www](#module\_alb\_route53\_record\_www) | ./modules/alb-route53 | n/a |
 | <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | n/a |
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | n/a |
 | <a name="module_custom_iam_policy"></a> [custom\_iam\_policy](#module\_custom\_iam\_policy) | terraform-aws-modules/iam/aws//modules/iam-policy | n/a |
@@ -53,8 +53,8 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_acm_allow_record_overwrite"></a> [acm\_allow\_record\_overwrite](#input\_acm\_allow\_record\_overwrite) | Allow record overwrite in DNS validation | `bool` | `true` | no |
-| <a name="input_acm_domain_name_1"></a> [acm\_domain\_name\_1](#input\_acm\_domain\_name\_1) | Domain name for ACM certificate | `string` | `"demo.kubecloud.net"` | no |
-| <a name="input_acm_domain_name_2"></a> [acm\_domain\_name\_2](#input\_acm\_domain\_name\_2) | Domain name for ACM certificate | `string` | `"www.demo.kubecloud.net"` | no |
+| <a name="input_acm_domain_name"></a> [acm\_domain\_name](#input\_acm\_domain\_name) | Domain name for ACM certificate | `string` | `"demo.kubecloud.net"` | no |
+| <a name="input_acm_domain_name_www"></a> [acm\_domain\_name\_www](#input\_acm\_domain\_name\_www) | Domain name for ACM certificate | `string` | `"www.demo.kubecloud.net"` | no |
 | <a name="input_acm_hosted_zone_name"></a> [acm\_hosted\_zone\_name](#input\_acm\_hosted\_zone\_name) | Hosted zone name for DNS validation | `string` | `"kubecloud.net"` | no |
 | <a name="input_acm_private_zone"></a> [acm\_private\_zone](#input\_acm\_private\_zone) | Whether the hosted zone is private or not | `bool` | `false` | no |
 | <a name="input_acm_ttl"></a> [acm\_ttl](#input\_acm\_ttl) | Time to live (TTL) for DNS records | `number` | `60` | no |
@@ -62,8 +62,8 @@
 | <a name="input_alb_name_prefix"></a> [alb\_name\_prefix](#input\_alb\_name\_prefix) | Prefix for the Application Load Balancer name | `string` | `"awsref"` | no |
 | <a name="input_alb_route53_evaluate_target_health"></a> [alb\_route53\_evaluate\_target\_health](#input\_alb\_route53\_evaluate\_target\_health) | Whether to evaluate the target health of the ALB | `bool` | `true` | no |
 | <a name="input_alb_route53_private_zone"></a> [alb\_route53\_private\_zone](#input\_alb\_route53\_private\_zone) | Whether the DNS zone is private or not | `bool` | `false` | no |
-| <a name="input_alb_route53_record_name_1"></a> [alb\_route53\_record\_name\_1](#input\_alb\_route53\_record\_name\_1) | The DNS record name for the first ALB record | `string` | `"demo.kubecloud.net"` | no |
-| <a name="input_alb_route53_record_name_2"></a> [alb\_route53\_record\_name\_2](#input\_alb\_route53\_record\_name\_2) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
+| <a name="input_alb_route53_record_name"></a> [alb\_route53\_record\_name](#input\_alb\_route53\_record\_name) | The DNS record name for the first ALB record | `string` | `"demo.kubecloud.net"` | no |
+| <a name="input_alb_route53_record_name_www"></a> [alb\_route53\_record\_name\_www](#input\_alb\_route53\_record\_name\_www) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
 | <a name="input_alb_route53_record_type"></a> [alb\_route53\_record\_type](#input\_alb\_route53\_record\_type) | The DNS record type for ALB records | `string` | `"A"` | no |
 | <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net."` | no |
 | <a name="input_alb_security_groups"></a> [alb\_security\_groups](#input\_alb\_security\_groups) | List of security group IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |

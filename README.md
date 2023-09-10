@@ -1,4 +1,4 @@
-# cloud-application-on-aws
+# AWS-Reference-Architecture
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

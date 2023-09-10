@@ -49,7 +49,7 @@ variable "vpc_security_group_ids" {
 variable "device_name" {
   description = "The name of the device to mount"
   type        = string
-  default     = "/dev/sda1"
+  default     = ""
 }
 
 variable "volume_type" {

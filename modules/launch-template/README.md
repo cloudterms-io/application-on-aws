@@ -12,7 +12,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.0 |
 
 ## Modules
 
@@ -30,7 +30,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_create"></a> [create](#input\_create) | Create the AWS Launch Template resource | `bool` | `true` | no |
 | <a name="input_delete_on_termination"></a> [delete\_on\_termination](#input\_delete\_on\_termination) | Whether the volume should be destroyed on instance termination. | `bool` | `true` | no |
-| <a name="input_device_name"></a> [device\_name](#input\_device\_name) | The name of the device to mount | `string` | `"/dev/sda1"` | no |
+| <a name="input_device_name"></a> [device\_name](#input\_device\_name) | The name of the device to mount | `string` | `""` | no |
 | <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | If true, the launched EC2 instance will have detailed monitoring enabled. | `bool` | `false` | no |
 | <a name="input_iam_instance_profile_name"></a> [iam\_instance\_profile\_name](#input\_iam\_instance\_profile\_name) | Name of the IAM instance profile | `string` | `""` | no |
 | <a name="input_image_id"></a> [image\_id](#input\_image\_id) | Amazon machine image id | `string` | `""` | no |

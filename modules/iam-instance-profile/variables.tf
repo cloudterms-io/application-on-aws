@@ -28,6 +28,12 @@ variable "custom_policy_arns" {
   default     = []
 }
 
+variable "custom_policy_arns_count" {
+  description = "Number of custom policy arns"
+  type        = number
+  default     = null
+}
+
 variable "role_path" {
   description = "Path for the IAM role"
   type        = string

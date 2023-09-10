@@ -1,5 +1,7 @@
 # AWS-Reference-Architecture
 
+![Alt text](images/aws-ref-arch.png)
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

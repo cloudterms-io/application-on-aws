@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+### [0.1.2](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.1...v0.1.2) (2023-09-10)
+
+
+### Bug Fixes
+
+* **www:** added certificate for www domain ([d43d0cb](https://github.com/shamimice03/aws-ref-architecture/commit/d43d0cb878111dfdb340c3ca628eae90c1e6d4bb))
+* **www:** added certificate for www domain ([d336ecb](https://github.com/shamimice03/aws-ref-architecture/commit/d336ecb1491c46c00d65f968e75d5b6628e3a0bc))
+* **www:** added certificate for www domain ([d631ef9](https://github.com/shamimice03/aws-ref-architecture/commit/d631ef9f6e5fa8595d8cf24e3920ef8f1bf84082))
+* **www:** added certificate for www domain ([9be1d16](https://github.com/shamimice03/aws-ref-architecture/commit/9be1d1683c71b6714f12d1a5af3447035bdfae02))
+
 ### [0.1.1](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.0...v0.1.1) (2023-09-07)
 
 

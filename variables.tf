@@ -490,6 +490,13 @@ variable "create_efs_parameters" {
 }
 
 ######################## Launch Template ########################
+variable "launch_template_create_new" {
+  description = "Whether to create new launch template"
+  type        = bool
+  default     = true
+}
+
+
 variable "launch_template_image_id" {
   description = "The AMI from which to launch the instance. Default will be `Amazonlinux2`"
   type        = string
@@ -792,6 +799,18 @@ variable "instance_profile_role_path" {
 }
 
 ######################## AutoScaling Group  ########################
+variable "asg_launch_template_name" {
+  description = "Name of the existing launch template"
+  type        = string
+  default     = ""
+}
+
+variable "asg_launch_template_version" {
+  description = "Version of the existing launch template. Can be version number, $Latest, or $Default"
+  type        = string
+  default     = "$Default"
+}
+
 variable "asg_name" {
   description = "Name of the Auto Scaling Group"
   type        = string

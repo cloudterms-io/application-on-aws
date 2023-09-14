@@ -102,6 +102,7 @@ create_replica_db_parameters = false
 create_efs_parameters        = false
 
 ### Launch Template
+launch_template_create_new             = false
 launch_template_image_id               = "" # This will be populated by data.aws_ami.amazonlinux2.id
 launch_template_instance_type          = "t2.micro"
 launch_template_key_name               = "ec2-access"
@@ -115,6 +116,7 @@ launch_template_delete_on_termination  = true
 launch_template_enable_monitoring      = false
 launch_template_userdata_file_path     = "userdata.sh"
 launch_template_resource_type          = "instance"
+
 
 ### ACM - Route53
 acm_domain_name            = "demo.kubecloud.net"
@@ -178,6 +180,8 @@ instance_profile_custom_policy_arns = [
 instance_profile_role_path = "/"
 
 ### Auto Scaling
+asg_launch_template_name = "ASG-Using-Memory"
+asg_launch_template_version = "$Latest"
 asg_name                      = "aws-ref-asg"
 asg_vpc_zone_identifier       = [] # This will be populated by module.vpc.public_subnet_id
 asg_desired_capacity          = 2

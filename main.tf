@@ -400,8 +400,8 @@ locals {
 
 
 module "efs" {
-  source                              = "./modules/efs" 
-  
+  source = "./modules/efs"
+
   create                              = var.efs_create
   name                                = var.efs_name
   efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
@@ -464,7 +464,7 @@ locals {
 module "launch_template" {
   source = "./modules/launch-template"
 
-  create = true
+  create = var.launch_template_create_new
 
   launch_template_name_prefix = local.launch_template_name_prefix
   image_id                    = local.launch_template_image_id
@@ -683,8 +683,8 @@ module "instance_profile" {
 #                  Auto-Scaling
 ##################################################
 locals {
-  asg_launch_template_name    = module.launch_template.name
-  asg_launch_template_version = module.launch_template.latest_version
+  asg_launch_template_name    = coalesce(module.launch_template.name, var.asg_launch_template_name)
+  asg_launch_template_version = coalesce(module.launch_template.latest_version, var.asg_launch_template_version)
   asg_vpc_zone_identifier     = coalesce(module.vpc.public_subnet_id, var.asg_vpc_zone_identifier)
   asg_name                    = coalesce(var.asg_name, join("-", [var.project_name, "asg"]))
   asg_target_group_arns       = module.alb.target_group_arns
@@ -694,7 +694,7 @@ module "asg" {
   source = "terraform-aws-modules/autoscaling/aws"
   create = true
   # Do not create launch template using asg module.
-  # launch template created separatly
+  # `launch template` created separately using `launch template` module or pre-existing template
   create_launch_template = false
 
   name                    = local.asg_name

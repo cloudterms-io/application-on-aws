@@ -1,3 +1,9 @@
+variable "create_record" {
+  description = "Whether to create DNS record"
+  type        = bool
+  default     = true
+}
+
 variable "zone_name" {
   description = "The name of the Route 53 zone"
   type        = string

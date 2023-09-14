@@ -4,6 +4,8 @@
 module "vpc" {
   source = "shamimice03/vpc/aws"
 
+  create = var.create_vpc
+
   vpc_name = var.vpc_name
   cidr     = var.cidr
 
@@ -39,11 +41,17 @@ locals {
   efs_sg_name = coalesce(var.efs_sg_name, "efs-sg")
   rds_sg_name = coalesce(var.rds_sg_name, "rds-sg")
   ssh_sg_name = coalesce(var.ssh_sg_name, "ssh-sg")
+
+  create_alb_sg = var.create_vpc && var.create_alb_sg
+  create_ec2_sg = var.create_vpc && var.create_ec2_sg
+  create_efs_sg = var.create_vpc && var.create_efs_sg
+  create_rds_sg = var.create_vpc && var.create_rds_sg
+  create_ssh_sg = var.create_vpc && var.create_ssh_sg
 }
 
 module "alb_sg" {
   source = "terraform-aws-modules/security-group/aws"
-  create = var.create_alb_sg
+  create = local.create_alb_sg
 
   vpc_id      = local.vpc_id
   name        = local.alb_sg_name
@@ -58,7 +66,7 @@ module "alb_sg" {
 
 module "ec2_sg" {
   source = "terraform-aws-modules/security-group/aws"
-  create = var.create_ec2_sg
+  create = local.create_ec2_sg
 
   vpc_id      = local.vpc_id
   name        = local.ec2_sg_name
@@ -77,7 +85,7 @@ module "ec2_sg" {
 
 module "efs_sg" {
   source = "terraform-aws-modules/security-group/aws"
-  create = var.create_efs_sg
+  create = local.create_efs_sg
 
   vpc_id      = local.vpc_id
   name        = local.efs_sg_name
@@ -100,7 +108,7 @@ module "efs_sg" {
 
 module "rds_sg" {
   source = "terraform-aws-modules/security-group/aws"
-  create = var.create_rds_sg
+  create = local.create_rds_sg
 
   vpc_id      = local.vpc_id
   name        = local.rds_sg_name
@@ -123,7 +131,7 @@ module "rds_sg" {
 
 module "ssh_sg" {
   source = "terraform-aws-modules/security-group/aws"
-  create = var.create_ssh_sg
+  create = local.create_ssh_sg
 
   vpc_id      = local.vpc_id
   name        = local.ssh_sg_name
@@ -145,6 +153,8 @@ locals {
 
 module "rds" {
   source = "shamimice03/rds-blueprint/aws"
+
+  create = var.create_primary_database
 
   create_db_subnet_group = var.create_db_subnet_group
   db_subnet_group_name   = var.db_subnet_group_name
@@ -206,11 +216,14 @@ module "rds" {
 #    Read Replica
 ##################################################
 locals {
-  replica_db_identifier = coalesce(var.replica_db_identifier, join("-", [var.db_identifier, "replica"]))
+  replica_db_identifier   = coalesce(var.replica_db_identifier, join("-", [var.db_identifier, "replica"]))
+  create_replica_database = var.create_primary_database && var.create_replica_database
 }
 
 module "rds_replica" {
   source = "shamimice03/rds-blueprint/aws"
+
+  create = local.create_replica_database
 
   replicate_source_db                 = var.db_identifier
   db_identifier                       = coalesce(var.replica_db_identifier, local.replica_db_identifier)
@@ -254,11 +267,16 @@ locals {
 ##################################################
 #       Primary Database Parameters
 ##################################################
+locals {
+  create_primary_db_parameters = var.create_primary_database && var.create_primary_db_parameters
+}
+
 module "primary_db_parameters" {
   source = "shamimice03/ssm-parameter/aws"
 
   parameters = [
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
@@ -266,6 +284,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
@@ -273,6 +292,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
@@ -280,6 +300,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
@@ -287,6 +308,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
@@ -294,6 +316,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
@@ -307,11 +330,16 @@ module "primary_db_parameters" {
 ##################################################
 #       Replica Database Parameters
 ##################################################
+locals {
+  create_replica_db_parameters = var.create_primary_database && var.create_replica_database && var.create_replica_db_parameters
+}
+
 module "replica_db_parameters" {
   source = "shamimice03/ssm-parameter/aws"
 
   parameters = [
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
@@ -319,6 +347,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
@@ -326,6 +355,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
@@ -333,6 +363,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
@@ -340,6 +371,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
@@ -347,6 +379,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
@@ -361,14 +394,15 @@ module "replica_db_parameters" {
 #   Elastic File System
 ##################################################
 locals {
-  #efs_parameters_prefix               = join("/", ["/efs", var.efs_name])
   efs_mount_target_subnet_ids         = coalesce(module.vpc.private_subnet_id, var.efs_mount_target_subnet_ids)
   efs_mount_target_security_group_ids = coalesce([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
 }
 
 
 module "efs" {
-  source                              = "./modules/efs"
+  source                              = "./modules/efs" 
+  
+  create                              = var.efs_create
   name                                = var.efs_name
   efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
   efs_mount_target_security_group_ids = local.efs_mount_target_security_group_ids
@@ -386,12 +420,17 @@ module "efs" {
 ##################################################
 #       EFS Parameters
 ##################################################
+locals {
+  create_efs_parameters = var.efs_create && var.create_efs_parameters
+}
+
 module "efs_parameters" {
 
   source = "shamimice03/ssm-parameter/aws"
 
   parameters = [
     {
+      create      = local.create_efs_parameters
       name        = join("/", [local.efs_parameters_prefix, "EFSID"])
       type        = "String"
       description = "The ID that identifies the file system"
@@ -498,6 +537,7 @@ locals {
 module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
+  create_lb          = var.create_lb
   name_prefix        = local.alb_name_prefix
   load_balancer_type = var.load_balancer_type
   vpc_id             = local.vpc_id
@@ -566,14 +606,16 @@ locals {
   alb_dns_name = module.alb.lb_dns_name
   alb_zone_id  = module.alb.lb_zone_id
 
-  alb_route53_record_name     = coalesce(var.acm_domain_name, var.alb_route53_record_name)
-  alb_route53_record_name_www = coalesce(var.acm_domain_name_www, var.alb_route53_record_name_www)
+  alb_route53_record_name     = coalesce(var.alb_route53_record_name, var.acm_domain_name)
+  alb_route53_record_name_www = coalesce(var.alb_route53_record_name_www, var.acm_domain_name_www)
+  alb_route53_zone_name       = coalesce(var.alb_route53_zone_name, var.acm_hosted_zone_name)
 
 }
 
 module "alb_route53_record" {
   source                 = "./modules/alb-route53"
-  zone_name              = var.alb_route53_zone_name
+  create_record          = var.create_alb_route53_record
+  zone_name              = local.alb_route53_zone_name
   record_name            = local.alb_route53_record_name
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
@@ -584,7 +626,8 @@ module "alb_route53_record" {
 
 module "alb_route53_record_www" {
   source                 = "./modules/alb-route53"
-  zone_name              = var.alb_route53_zone_name
+  create_record          = var.create_alb_route53_www_record
+  zone_name              = local.alb_route53_zone_name
   record_name            = local.alb_route53_record_name_www
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name

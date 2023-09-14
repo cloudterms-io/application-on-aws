@@ -4,7 +4,9 @@ general_tags = {
   "Team"         = "platform-team"
   "Env"          = "dev"
 }
+
 ### VPC
+create_vpc                = true
 vpc_name                  = "aws-ref-vpc"
 cidr                      = "10.3.0.0/16"
 azs                       = ["ap-northeast-1a", "ap-northeast-1c"]
@@ -22,16 +24,18 @@ alb_sg_name   = "aws-ref-alb-sg"
 create_ec2_sg = true
 ec2_sg_name   = "aws-ref-ec2-sg"
 
-create_efs_sg = true
+create_efs_sg = false
 efs_sg_name   = "aws-ref-efs-sg"
 
-create_rds_sg = true
+create_rds_sg = false
 rds_sg_name   = "aws-ref-rds-sg"
 
 create_ssh_sg = true
 ssh_sg_name   = "aws-ref-ssh-sg"
 
 ### Primary Database
+create_primary_database = false # database won't be created
+
 db_identifier                       = "aws-ref-db"
 create_db_subnet_group              = true
 db_subnet_group_name                = "aws-ref-db-subnet"
@@ -60,6 +64,8 @@ delete_automated_backups            = true
 skip_final_snapshot                 = true
 
 ### Replica Database
+create_replica_database = false # read replica won't be created
+
 replica_db_identifier                       = "aws-ref-db-replica"
 replica_multi_az                            = false
 replica_db_availability_zone                = "ap-northeast-1c"
@@ -81,12 +87,19 @@ replica_delete_automated_backups            = true
 replica_skip_final_snapshot                 = true
 
 ### Elastic File System
+efs_create = false
+
 efs_name                            = "aws-ref-efs"
 efs_mount_target_subnet_ids         = [] # This will be populated by module.vpc.private_subnet_id
 efs_mount_target_security_group_ids = [] # This will be populated by module.efs_sg.security_group_id
 efs_throughput_mode                 = "bursting"
 efs_performance_mode                = "generalPurpose"
 efs_transition_to_ia                = "AFTER_30_DAYS"
+
+### Parameters
+create_primary_db_parameters = false
+create_replica_db_parameters = false
+create_efs_parameters        = false
 
 ### Launch Template
 launch_template_image_id               = "" # This will be populated by data.aws_ami.amazonlinux2.id
@@ -121,7 +134,9 @@ alb_target_group_name_prefix = "ref-tg"
 #alb_certificate_arn          = "" # This will be populated by module.acm_route53.certificate_arn
 
 ### ALB - Route53
+create_alb_route53_record          = true
 alb_route53_record_name            = "demo.kubecloud.net"
+create_alb_route53_www_record      = true
 alb_route53_record_name_www        = "www.demo.kubecloud.net"
 alb_route53_zone_name              = "kubecloud.net"
 alb_route53_record_type            = "A"

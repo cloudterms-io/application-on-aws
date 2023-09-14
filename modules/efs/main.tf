@@ -1,4 +1,5 @@
 resource "aws_efs_file_system" "this" {
+  count            = var.create ? 1 : 0
   creation_token   = var.name
   encrypted        = var.efs_encrypted
   throughput_mode  = var.efs_throughput_mode
@@ -12,8 +13,8 @@ resource "aws_efs_file_system" "this" {
 }
 
 resource "aws_efs_mount_target" "efs_mount" {
-  count           = length(var.efs_mount_target_subnet_ids)
-  file_system_id  = aws_efs_file_system.this.id
+  count           = var.create ? length(var.efs_mount_target_subnet_ids) : 0
+  file_system_id  = aws_efs_file_system.this[0].id
   subnet_id       = var.efs_mount_target_subnet_ids[count.index]
   security_groups = var.efs_mount_target_security_group_ids
 }

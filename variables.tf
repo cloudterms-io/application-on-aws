@@ -16,6 +16,12 @@ variable "general_tags" {
 }
 
 ######################## VPC ########################
+variable "create_vpc" {
+  description = "Controls if VPC should be created"
+  type        = bool
+  default     = true
+}
+
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -132,6 +138,12 @@ variable "ssh_sg_name" {
 }
 
 ######################## Primary Database ###########################
+variable "create_primary_database" {
+  description = "Whether to create primary database"
+  type        = bool
+  default     = true
+}
+
 variable "db_identifier" {
   description = "The name of the RDS instance"
   type        = string
@@ -289,6 +301,11 @@ variable "skip_final_snapshot" {
 }
 
 ######################## Read Replica ########################
+variable "create_replica_database" {
+  description = "Whether to create replica database. `create_primary_database` must be `true`"
+  type        = bool
+  default     = true
+}
 variable "replica_db_identifier" {
   description = "Identifier for the RDS replica instance"
   type        = string
@@ -405,6 +422,12 @@ variable "replica_skip_final_snapshot" {
 
 
 ######################## EFS ########################
+variable "efs_create" {
+  description = "Whether to create Elastic File System"
+  type        = bool
+  default     = false
+}
+
 variable "efs_name" {
   description = "Name of the Elastic File System"
   type        = string
@@ -445,6 +468,25 @@ variable "efs_transition_to_ia" {
   description = "The lifecycle policy transition for files to Infrequent Access (IA) storage"
   type        = string
   default     = "AFTER_30_DAYS"
+}
+
+######################## SSM Parameters  ########################
+variable "create_primary_db_parameters" {
+  description = "Whether to store primary database parameters on SSM parameter store"
+  type        = bool
+  default     = false
+}
+
+variable "create_replica_db_parameters" {
+  description = "Whether to store replica database parameters on SSM parameter store"
+  type        = bool
+  default     = false
+}
+
+variable "create_efs_parameters" {
+  description = "Whether to store efs parameters on SSM parameter store"
+  type        = bool
+  default     = false
 }
 
 ######################## Launch Template ########################
@@ -571,6 +613,12 @@ variable "acm_ttl" {
 
 
 ######################## ALB ########################
+variable "create_lb" {
+  description = "Controls if the Load Balancer should be created"
+  type        = bool
+  default     = true
+}
+
 variable "alb_name_prefix" {
   description = "Prefix for the Application Load Balancer name"
   type        = string
@@ -608,10 +656,22 @@ variable "alb_target_group_name_prefix" {
 # }
 
 ######################### ALB - Route53 ###################
+variable "create_alb_route53_record" {
+  description = "Whether to create ALB - Route53 record"
+  type        = bool
+  default     = true
+}
+
+variable "create_alb_route53_www_record" {
+  description = "Whether to create ALB - Route53 WWW record"
+  type        = bool
+  default     = true
+}
+
 variable "alb_route53_zone_name" {
   description = "The DNS zone name"
   type        = string
-  default     = "kubecloud.net."
+  default     = "kubecloud.net"
 }
 
 variable "alb_route53_record_name" {

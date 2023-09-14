@@ -14,7 +14,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.2 |
 
 ## Modules
 
@@ -65,7 +65,7 @@
 | <a name="input_alb_route53_record_name"></a> [alb\_route53\_record\_name](#input\_alb\_route53\_record\_name) | The DNS record name for the first ALB record | `string` | `"demo.kubecloud.net"` | no |
 | <a name="input_alb_route53_record_name_www"></a> [alb\_route53\_record\_name\_www](#input\_alb\_route53\_record\_name\_www) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
 | <a name="input_alb_route53_record_type"></a> [alb\_route53\_record\_type](#input\_alb\_route53\_record\_type) | The DNS record type for ALB records | `string` | `"A"` | no |
-| <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net."` | no |
+| <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net"` | no |
 | <a name="input_alb_security_groups"></a> [alb\_security\_groups](#input\_alb\_security\_groups) | List of security group IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
 | <a name="input_alb_sg_name"></a> [alb\_sg\_name](#input\_alb\_sg\_name) | Name of the ALB security group | `string` | `"aws-ref-alb-sg"` | no |
 | <a name="input_alb_subnets"></a> [alb\_subnets](#input\_alb\_subnets) | List of subnet IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
@@ -85,12 +85,20 @@
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | Backup retention period (in days) for the RDS instance | `number` | `7` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | Preferred backup window for the RDS instance | `string` | `"03:00-05:00"` | no |
 | <a name="input_cidr"></a> [cidr](#input\_cidr) | CIDR block for the VPC | `string` | `"10.3.0.0/16"` | no |
+| <a name="input_create_alb_route53_record"></a> [create\_alb\_route53\_record](#input\_create\_alb\_route53\_record) | Whether to create ALB - Route53 record | `bool` | `true` | no |
+| <a name="input_create_alb_route53_www_record"></a> [create\_alb\_route53\_www\_record](#input\_create\_alb\_route53\_www\_record) | Whether to create ALB - Route53 WWW record | `bool` | `true` | no |
 | <a name="input_create_alb_sg"></a> [create\_alb\_sg](#input\_create\_alb\_sg) | Whether to create the Application Load Balancer (ALB) security group. | `bool` | `true` | no |
 | <a name="input_create_custom_policy"></a> [create\_custom\_policy](#input\_create\_custom\_policy) | Whether to create custom policy | `bool` | `true` | no |
 | <a name="input_create_db_subnet_group"></a> [create\_db\_subnet\_group](#input\_create\_db\_subnet\_group) | Create a new DB subnet group | `bool` | `true` | no |
 | <a name="input_create_ec2_sg"></a> [create\_ec2\_sg](#input\_create\_ec2\_sg) | Whether to create the EC2 instance security group. | `bool` | `true` | no |
+| <a name="input_create_efs_parameters"></a> [create\_efs\_parameters](#input\_create\_efs\_parameters) | Whether to store efs parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_efs_sg"></a> [create\_efs\_sg](#input\_create\_efs\_sg) | Whether to create the Elastic File System (EFS) security group. | `bool` | `true` | no |
+| <a name="input_create_lb"></a> [create\_lb](#input\_create\_lb) | Controls if the Load Balancer should be created | `bool` | `true` | no |
+| <a name="input_create_primary_database"></a> [create\_primary\_database](#input\_create\_primary\_database) | Whether to create primary database | `bool` | `true` | no |
+| <a name="input_create_primary_db_parameters"></a> [create\_primary\_db\_parameters](#input\_create\_primary\_db\_parameters) | Whether to store primary database parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_rds_sg"></a> [create\_rds\_sg](#input\_create\_rds\_sg) | Whether to create the RDS security group. | `bool` | `true` | no |
+| <a name="input_create_replica_database"></a> [create\_replica\_database](#input\_create\_replica\_database) | Whether to create replica database. `create_primary_database` must be `true` | `bool` | `true` | no |
+| <a name="input_create_replica_db_parameters"></a> [create\_replica\_db\_parameters](#input\_create\_replica\_db\_parameters) | Whether to store replica database parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_ssh_sg"></a> [create\_ssh\_sg](#input\_create\_ssh\_sg) | Whether to create the SSH security group. | `bool` | `true` | no |
 | <a name="input_custom_iam_policy_description"></a> [custom\_iam\_policy\_description](#input\_custom\_iam\_policy\_description) | Description for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"List all s3 buckets"` | no |
 | <a name="input_custom_iam_policy_json"></a> [custom\_iam\_policy\_json](#input\_custom\_iam\_policy\_json) | JSON policy document. Required if `create_custom_policy` set to `true` | `string` | `"{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListAllMyBuckets\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"` | no |
@@ -107,6 +115,7 @@
 | <a name="input_delete_automated_backups"></a> [delete\_automated\_backups](#input\_delete\_automated\_backups) | Delete automated backups when the RDS instance is deleted | `bool` | `true` | no |
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | Enable or disable deletion protection for the RDS instance | `bool` | `false` | no |
 | <a name="input_ec2_sg_name"></a> [ec2\_sg\_name](#input\_ec2\_sg\_name) | Name of the ec2 security group | `string` | `"aws-ref-ec2-sg"` | no |
+| <a name="input_efs_create"></a> [efs\_create](#input\_efs\_create) | Whether to create Elastic File System | `bool` | `false` | no |
 | <a name="input_efs_encrypted"></a> [efs\_encrypted](#input\_efs\_encrypted) | Whether to enable encryption for the EFS file system | `bool` | `true` | no |
 | <a name="input_efs_mount_target_security_group_ids"></a> [efs\_mount\_target\_security\_group\_ids](#input\_efs\_mount\_target\_security\_group\_ids) | List of security group IDs for EFS mount targets | `list(string)` | `[]` | no |
 | <a name="input_efs_mount_target_subnet_ids"></a> [efs\_mount\_target\_subnet\_ids](#input\_efs\_mount\_target\_subnet\_ids) | List of subnet IDs for EFS mount targets | `list(string)` | `[]` | no |

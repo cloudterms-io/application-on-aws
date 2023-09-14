@@ -4,6 +4,8 @@ data "aws_route53_zone" "selected" {
 }
 
 resource "aws_route53_record" "record" {
+  count = var.create_record ? 1 : 0
+
   zone_id = data.aws_route53_zone.selected.zone_id
   name    = var.record_name
   type    = var.record_type

@@ -10,7 +10,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
 
 ## Modules
 
@@ -27,6 +27,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_create_record"></a> [create\_record](#input\_create\_record) | Whether to create DNS record | `bool` | `true` | no |
 | <a name="input_evaluate_target_health"></a> [evaluate\_target\_health](#input\_evaluate\_target\_health) | Whether to evaluate the target health of the alias record | `bool` | `true` | no |
 | <a name="input_lb_dns_name"></a> [lb\_dns\_name](#input\_lb\_dns\_name) | The DNS name to which the record should alias | `string` | `""` | no |
 | <a name="input_lb_zone_id"></a> [lb\_zone\_id](#input\_lb\_zone\_id) | The Route 53 zone ID of the alias target | `string` | `""` | no |

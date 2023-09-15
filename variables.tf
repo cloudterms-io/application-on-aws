@@ -490,12 +490,11 @@ variable "create_efs_parameters" {
 }
 
 ######################## Launch Template ########################
-variable "launch_template_create_new" {
+variable "create_launch_template" {
   description = "Whether to create new launch template"
   type        = bool
   default     = true
 }
-
 
 variable "launch_template_image_id" {
   description = "The AMI from which to launch the instance. Default will be `Amazonlinux2`"
@@ -579,13 +578,13 @@ variable "launch_template_resource_type" {
 variable "acm_domain_name" {
   description = "Domain name for ACM certificate"
   type        = string
-  default     = "demo.kubecloud.net"
+  default     = "test.kubecloud.net"
 }
 
 variable "acm_domain_name_www" {
   description = "Domain name for ACM certificate"
   type        = string
-  default     = "www.demo.kubecloud.net"
+  default     = "www.test.kubecloud.net"
 }
 
 variable "acm_validation_method" {
@@ -684,13 +683,13 @@ variable "alb_route53_zone_name" {
 variable "alb_route53_record_name" {
   description = "The DNS record name for the first ALB record"
   type        = string
-  default     = "demo.kubecloud.net"
+  default     = "test.kubecloud.net"
 }
 
 variable "alb_route53_record_name_www" {
   description = "The DNS record name for the second ALB record"
   type        = string
-  default     = "www.demo.kubecloud.net"
+  default     = "www.test.kubecloud.net"
 }
 
 variable "alb_route53_record_type" {
@@ -799,6 +798,12 @@ variable "instance_profile_role_path" {
 }
 
 ######################## AutoScaling Group  ########################
+variable "asg_create" {
+  description = "Whether to create asg or not"
+  type        = bool
+  default     = true
+}
+
 variable "asg_launch_template_name" {
   description = "Name of the existing launch template"
   type        = string

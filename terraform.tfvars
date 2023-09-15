@@ -102,7 +102,7 @@ create_replica_db_parameters = false
 create_efs_parameters        = false
 
 ### Launch Template
-launch_template_create_new             = false
+create_launch_template                 = true
 launch_template_image_id               = "" # This will be populated by data.aws_ami.amazonlinux2.id
 launch_template_instance_type          = "t2.micro"
 launch_template_key_name               = "ec2-access"
@@ -119,8 +119,8 @@ launch_template_resource_type          = "instance"
 
 
 ### ACM - Route53
-acm_domain_name            = "demo.kubecloud.net"
-acm_domain_name_www        = "www.demo.kubecloud.net"
+acm_domain_name            = "test.kubecloud.net"
+acm_domain_name_www        = "www.test.kubecloud.net"
 acm_hosted_zone_name       = "kubecloud.net"
 acm_validation_method      = "DNS"
 acm_private_zone           = false
@@ -137,9 +137,9 @@ alb_target_group_name_prefix = "ref-tg"
 
 ### ALB - Route53
 create_alb_route53_record          = true
-alb_route53_record_name            = "demo.kubecloud.net"
+alb_route53_record_name            = "test.kubecloud.net"
 create_alb_route53_www_record      = true
-alb_route53_record_name_www        = "www.demo.kubecloud.net"
+alb_route53_record_name_www        = "www.test.kubecloud.net"
 alb_route53_zone_name              = "kubecloud.net"
 alb_route53_record_type            = "A"
 alb_route53_private_zone           = false
@@ -180,8 +180,7 @@ instance_profile_custom_policy_arns = [
 instance_profile_role_path = "/"
 
 ### Auto Scaling
-asg_launch_template_name = "ASG-Using-Memory"
-asg_launch_template_version = "$Latest"
+asg_create                    = true
 asg_name                      = "aws-ref-asg"
 asg_vpc_zone_identifier       = [] # This will be populated by module.vpc.public_subnet_id
 asg_desired_capacity          = 2

@@ -8,7 +8,7 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.17.0 |
 
 ## Providers
 
@@ -44,8 +44,8 @@
 
 | Name | Type |
 |------|------|
-| [aws_acm_certificate.issued](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/acm_certificate) | data source |
-| [aws_ami.amazonlinux2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_acm_certificate.issued](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/acm_certificate) | data source |
+| [aws_ami.amazonlinux2](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/ami) | data source |
 
 ## Inputs
 

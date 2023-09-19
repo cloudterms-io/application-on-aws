@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.2...v0.2.0) (2023-09-19)
+
+
+### Features
+
+* **update:** updated create option, parameters ([56cd46b](https://github.com/shamimice03/aws-ref-architecture/commit/56cd46bc34f88dc182aafb07457252550b156190))
+
+
+### Bug Fixes
+
+* **variable:** fixed variable name ([fb8cda6](https://github.com/shamimice03/aws-ref-architecture/commit/fb8cda657e916ed0035c40d63a32cda125aaf757))
+
 ### [0.1.2](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.1...v0.1.2) (2023-09-10)
 
 

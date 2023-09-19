@@ -4,13 +4,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.17.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.17.0 |
 
 ## Modules
 
@@ -20,13 +20,14 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_efs_file_system.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system) | resource |
-| [aws_efs_mount_target.efs_mount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_mount_target) | resource |
+| [aws_efs_file_system.this](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/efs_file_system) | resource |
+| [aws_efs_mount_target.efs_mount](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/efs_mount_target) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_create"></a> [create](#input\_create) | Whether to create EFS resources | `bool` | `true` | no |
 | <a name="input_efs_encrypted"></a> [efs\_encrypted](#input\_efs\_encrypted) | Whether EFS should be encrypted | `bool` | `true` | no |
 | <a name="input_efs_mount_target_security_group_ids"></a> [efs\_mount\_target\_security\_group\_ids](#input\_efs\_mount\_target\_security\_group\_ids) | IDs of the mount targets security group for EFS | `list(string)` | `[]` | no |
 | <a name="input_efs_mount_target_subnet_ids"></a> [efs\_mount\_target\_subnet\_ids](#input\_efs\_mount\_target\_subnet\_ids) | List of mount targets subnet IDs | `list(string)` | `[]` | no |

@@ -16,6 +16,12 @@ variable "general_tags" {
 }
 
 ######################## VPC ########################
+variable "create_vpc" {
+  description = "Controls if VPC should be created"
+  type        = bool
+  default     = true
+}
+
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -132,6 +138,12 @@ variable "ssh_sg_name" {
 }
 
 ######################## Primary Database ###########################
+variable "create_primary_database" {
+  description = "Whether to create primary database"
+  type        = bool
+  default     = true
+}
+
 variable "db_identifier" {
   description = "The name of the RDS instance"
   type        = string
@@ -289,6 +301,11 @@ variable "skip_final_snapshot" {
 }
 
 ######################## Read Replica ########################
+variable "create_replica_database" {
+  description = "Whether to create replica database. `create_primary_database` must be `true`"
+  type        = bool
+  default     = true
+}
 variable "replica_db_identifier" {
   description = "Identifier for the RDS replica instance"
   type        = string
@@ -405,6 +422,12 @@ variable "replica_skip_final_snapshot" {
 
 
 ######################## EFS ########################
+variable "efs_create" {
+  description = "Whether to create Elastic File System"
+  type        = bool
+  default     = false
+}
+
 variable "efs_name" {
   description = "Name of the Elastic File System"
   type        = string
@@ -447,7 +470,32 @@ variable "efs_transition_to_ia" {
   default     = "AFTER_30_DAYS"
 }
 
+######################## SSM Parameters  ########################
+variable "create_primary_db_parameters" {
+  description = "Whether to store primary database parameters on SSM parameter store"
+  type        = bool
+  default     = false
+}
+
+variable "create_replica_db_parameters" {
+  description = "Whether to store replica database parameters on SSM parameter store"
+  type        = bool
+  default     = false
+}
+
+variable "create_efs_parameters" {
+  description = "Whether to store efs parameters on SSM parameter store"
+  type        = bool
+  default     = false
+}
+
 ######################## Launch Template ########################
+variable "create_launch_template" {
+  description = "Whether to create new launch template"
+  type        = bool
+  default     = true
+}
+
 variable "launch_template_image_id" {
   description = "The AMI from which to launch the instance. Default will be `Amazonlinux2`"
   type        = string
@@ -527,16 +575,16 @@ variable "launch_template_resource_type" {
 }
 
 ######################## ACM - Route53 ########################
-variable "acm_domain_name_1" {
-  description = "Domain name for ACM certificate"
-  type        = string
-  default     = "demo.kubecloud.net"
+variable "create_certificates" {
+  description = "Controls if certificate should be generated"
+  type        = bool
+  default     = true
 }
 
-variable "acm_domain_name_2" {
+variable "acm_domain_names" {
   description = "Domain name for ACM certificate"
-  type        = string
-  default     = "www.demo.kubecloud.net"
+  type        = list(string)
+  default     = []
 }
 
 variable "acm_validation_method" {
@@ -569,12 +617,17 @@ variable "acm_ttl" {
   default     = 60
 }
 
-
 ######################## ALB ########################
+variable "create_lb" {
+  description = "Controls if the Load Balancer should be created"
+  type        = bool
+  default     = true
+}
+
 variable "alb_name_prefix" {
   description = "Prefix for the Application Load Balancer name"
   type        = string
-  default     = "awsref"
+  default     = ""
 }
 
 variable "load_balancer_type" {
@@ -598,32 +651,32 @@ variable "alb_security_groups" {
 variable "alb_target_group_name_prefix" {
   description = "Prefix for the ALB target group name"
   type        = string
-  default     = "ref-tg"
+  default     = ""
 }
 
-# variable "alb_certificate_arn" {
-#   description = "ARN of the ACM certificate for the Application Load Balancer (ALB)"
-#   type        = string
-#   default     = ""
-# }
+variable "alb_acm_certificate_domain_name" {
+  description = "ACM Certificate domain name"
+  type        = string
+  default     = ""
+}
 
 ######################### ALB - Route53 ###################
+variable "create_alb_route53_record" {
+  description = "Whether to create ALB - Route53 record"
+  type        = bool
+  default     = true
+}
+
 variable "alb_route53_zone_name" {
   description = "The DNS zone name"
   type        = string
-  default     = "kubecloud.net."
+  default     = "kubecloud.net"
 }
 
-variable "alb_route53_record_name_1" {
+variable "alb_route53_record_names" {
   description = "The DNS record name for the first ALB record"
-  type        = string
-  default     = "demo.kubecloud.net"
-}
-
-variable "alb_route53_record_name_2" {
-  description = "The DNS record name for the second ALB record"
-  type        = string
-  default     = "www.demo.kubecloud.net"
+  type        = list(string)
+  default     = []
 }
 
 variable "alb_route53_record_type" {
@@ -642,6 +695,12 @@ variable "alb_route53_evaluate_target_health" {
   description = "Whether to evaluate the target health of the ALB"
   type        = bool
   default     = true
+}
+
+variable "alb_route53_allow_record_overwrite" {
+  description = "Allow creation of this record in Terraform to overwrite an existing record"
+  type        = bool
+  default     = false
 }
 
 ######################## Create custom policy ########################
@@ -687,7 +746,7 @@ EOF
 }
 
 ######################## IAM Instance Profile ########################
-variable "instance_profile_create_instance_profile" {
+variable "create_instance_profile" {
   description = "Whether to create an instance profile"
   type        = bool
   default     = true
@@ -732,6 +791,12 @@ variable "instance_profile_role_path" {
 }
 
 ######################## AutoScaling Group  ########################
+variable "asg_create" {
+  description = "Whether to create asg or not"
+  type        = bool
+  default     = true
+}
+
 variable "asg_name" {
   description = "Name of the Auto Scaling Group"
   type        = string

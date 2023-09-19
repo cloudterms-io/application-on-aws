@@ -8,70 +8,70 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.17.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.16.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.17.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_acm_route53"></a> [acm\_route53](#module\_acm\_route53) | shamimice03/acm-route53/aws | n/a |
-| <a name="module_acm_route53_www"></a> [acm\_route53\_www](#module\_acm\_route53\_www) | shamimice03/acm-route53/aws | n/a |
-| <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | n/a |
-| <a name="module_alb_route53_record_1"></a> [alb\_route53\_record\_1](#module\_alb\_route53\_record\_1) | ./modules/alb-route53 | n/a |
-| <a name="module_alb_route53_record_2"></a> [alb\_route53\_record\_2](#module\_alb\_route53\_record\_2) | ./modules/alb-route53 | n/a |
-| <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | n/a |
-| <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | n/a |
-| <a name="module_custom_iam_policy"></a> [custom\_iam\_policy](#module\_custom\_iam\_policy) | terraform-aws-modules/iam/aws//modules/iam-policy | n/a |
-| <a name="module_ec2_sg"></a> [ec2\_sg](#module\_ec2\_sg) | terraform-aws-modules/security-group/aws | n/a |
+| <a name="module_acm_route53"></a> [acm\_route53](#module\_acm\_route53) | shamimice03/acm-route53/aws | 1.1.0 |
+| <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | 8.7.0 |
+| <a name="module_alb_route53_record"></a> [alb\_route53\_record](#module\_alb\_route53\_record) | ./modules/alb-route53 | n/a |
+| <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
+| <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | 6.10.0 |
+| <a name="module_custom_iam_policy"></a> [custom\_iam\_policy](#module\_custom\_iam\_policy) | terraform-aws-modules/iam/aws//modules/iam-policy | 5.30.0 |
+| <a name="module_ec2_sg"></a> [ec2\_sg](#module\_ec2\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
 | <a name="module_efs"></a> [efs](#module\_efs) | ./modules/efs | n/a |
-| <a name="module_efs_parameters"></a> [efs\_parameters](#module\_efs\_parameters) | shamimice03/ssm-parameter/aws | n/a |
-| <a name="module_efs_sg"></a> [efs\_sg](#module\_efs\_sg) | terraform-aws-modules/security-group/aws | n/a |
+| <a name="module_efs_parameters"></a> [efs\_parameters](#module\_efs\_parameters) | shamimice03/ssm-parameter/aws | 0.5.0 |
+| <a name="module_efs_sg"></a> [efs\_sg](#module\_efs\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
 | <a name="module_instance_profile"></a> [instance\_profile](#module\_instance\_profile) | ./modules/iam-instance-profile | n/a |
 | <a name="module_launch_template"></a> [launch\_template](#module\_launch\_template) | ./modules/launch-template | n/a |
-| <a name="module_primary_db_parameters"></a> [primary\_db\_parameters](#module\_primary\_db\_parameters) | shamimice03/ssm-parameter/aws | n/a |
-| <a name="module_rds"></a> [rds](#module\_rds) | shamimice03/rds-blueprint/aws | n/a |
-| <a name="module_rds_replica"></a> [rds\_replica](#module\_rds\_replica) | shamimice03/rds-blueprint/aws | n/a |
-| <a name="module_rds_sg"></a> [rds\_sg](#module\_rds\_sg) | terraform-aws-modules/security-group/aws | n/a |
-| <a name="module_replica_db_parameters"></a> [replica\_db\_parameters](#module\_replica\_db\_parameters) | shamimice03/ssm-parameter/aws | n/a |
-| <a name="module_ssh_sg"></a> [ssh\_sg](#module\_ssh\_sg) | terraform-aws-modules/security-group/aws | n/a |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | shamimice03/vpc/aws | n/a |
+| <a name="module_primary_db_parameters"></a> [primary\_db\_parameters](#module\_primary\_db\_parameters) | shamimice03/ssm-parameter/aws | 0.5.0 |
+| <a name="module_rds"></a> [rds](#module\_rds) | shamimice03/rds-blueprint/aws | 1.3.0 |
+| <a name="module_rds_replica"></a> [rds\_replica](#module\_rds\_replica) | shamimice03/rds-blueprint/aws | 1.3.0 |
+| <a name="module_rds_sg"></a> [rds\_sg](#module\_rds\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
+| <a name="module_replica_db_parameters"></a> [replica\_db\_parameters](#module\_replica\_db\_parameters) | shamimice03/ssm-parameter/aws | 0.5.0 |
+| <a name="module_ssh_sg"></a> [ssh\_sg](#module\_ssh\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | shamimice03/vpc/aws | 1.2.1 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_ami.amazonlinux2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_acm_certificate.issued](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/acm_certificate) | data source |
+| [aws_ami.amazonlinux2](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/ami) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_acm_allow_record_overwrite"></a> [acm\_allow\_record\_overwrite](#input\_acm\_allow\_record\_overwrite) | Allow record overwrite in DNS validation | `bool` | `true` | no |
-| <a name="input_acm_domain_name_1"></a> [acm\_domain\_name\_1](#input\_acm\_domain\_name\_1) | Domain name for ACM certificate | `string` | `"demo.kubecloud.net"` | no |
-| <a name="input_acm_domain_name_2"></a> [acm\_domain\_name\_2](#input\_acm\_domain\_name\_2) | Domain name for ACM certificate | `string` | `"www.demo.kubecloud.net"` | no |
+| <a name="input_acm_domain_names"></a> [acm\_domain\_names](#input\_acm\_domain\_names) | Domain name for ACM certificate | `list(string)` | `[]` | no |
 | <a name="input_acm_hosted_zone_name"></a> [acm\_hosted\_zone\_name](#input\_acm\_hosted\_zone\_name) | Hosted zone name for DNS validation | `string` | `"kubecloud.net"` | no |
 | <a name="input_acm_private_zone"></a> [acm\_private\_zone](#input\_acm\_private\_zone) | Whether the hosted zone is private or not | `bool` | `false` | no |
 | <a name="input_acm_ttl"></a> [acm\_ttl](#input\_acm\_ttl) | Time to live (TTL) for DNS records | `number` | `60` | no |
 | <a name="input_acm_validation_method"></a> [acm\_validation\_method](#input\_acm\_validation\_method) | Validation method for ACM certificate | `string` | `"DNS"` | no |
-| <a name="input_alb_name_prefix"></a> [alb\_name\_prefix](#input\_alb\_name\_prefix) | Prefix for the Application Load Balancer name | `string` | `"awsref"` | no |
+| <a name="input_alb_acm_certificate_domain_name"></a> [alb\_acm\_certificate\_domain\_name](#input\_alb\_acm\_certificate\_domain\_name) | ACM Certificate domain name | `string` | `""` | no |
+| <a name="input_alb_name_prefix"></a> [alb\_name\_prefix](#input\_alb\_name\_prefix) | Prefix for the Application Load Balancer name | `string` | `""` | no |
+| <a name="input_alb_route53_allow_record_overwrite"></a> [alb\_route53\_allow\_record\_overwrite](#input\_alb\_route53\_allow\_record\_overwrite) | Allow creation of this record in Terraform to overwrite an existing record | `bool` | `false` | no |
 | <a name="input_alb_route53_evaluate_target_health"></a> [alb\_route53\_evaluate\_target\_health](#input\_alb\_route53\_evaluate\_target\_health) | Whether to evaluate the target health of the ALB | `bool` | `true` | no |
 | <a name="input_alb_route53_private_zone"></a> [alb\_route53\_private\_zone](#input\_alb\_route53\_private\_zone) | Whether the DNS zone is private or not | `bool` | `false` | no |
-| <a name="input_alb_route53_record_name_1"></a> [alb\_route53\_record\_name\_1](#input\_alb\_route53\_record\_name\_1) | The DNS record name for the first ALB record | `string` | `"demo.kubecloud.net"` | no |
-| <a name="input_alb_route53_record_name_2"></a> [alb\_route53\_record\_name\_2](#input\_alb\_route53\_record\_name\_2) | The DNS record name for the second ALB record | `string` | `"www.demo.kubecloud.net"` | no |
+| <a name="input_alb_route53_record_names"></a> [alb\_route53\_record\_names](#input\_alb\_route53\_record\_names) | The DNS record name for the first ALB record | `list(string)` | `[]` | no |
 | <a name="input_alb_route53_record_type"></a> [alb\_route53\_record\_type](#input\_alb\_route53\_record\_type) | The DNS record type for ALB records | `string` | `"A"` | no |
-| <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net."` | no |
+| <a name="input_alb_route53_zone_name"></a> [alb\_route53\_zone\_name](#input\_alb\_route53\_zone\_name) | The DNS zone name | `string` | `"kubecloud.net"` | no |
 | <a name="input_alb_security_groups"></a> [alb\_security\_groups](#input\_alb\_security\_groups) | List of security group IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
 | <a name="input_alb_sg_name"></a> [alb\_sg\_name](#input\_alb\_sg\_name) | Name of the ALB security group | `string` | `"aws-ref-alb-sg"` | no |
 | <a name="input_alb_subnets"></a> [alb\_subnets](#input\_alb\_subnets) | List of subnet IDs for the Application Load Balancer (ALB) | `list(string)` | `[]` | no |
-| <a name="input_alb_target_group_name_prefix"></a> [alb\_target\_group\_name\_prefix](#input\_alb\_target\_group\_name\_prefix) | Prefix for the ALB target group name | `string` | `"ref-tg"` | no |
+| <a name="input_alb_target_group_name_prefix"></a> [alb\_target\_group\_name\_prefix](#input\_alb\_target\_group\_name\_prefix) | Prefix for the ALB target group name | `string` | `""` | no |
 | <a name="input_allocated_storage"></a> [allocated\_storage](#input\_allocated\_storage) | Allocated storage for the RDS instance (in GB) | `string` | `"20"` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Apply changes immediately or during the next maintenance window | `bool` | `true` | no |
+| <a name="input_asg_create"></a> [asg\_create](#input\_asg\_create) | Whether to create asg or not | `bool` | `true` | no |
 | <a name="input_asg_desired_capacity"></a> [asg\_desired\_capacity](#input\_asg\_desired\_capacity) | Desired capacity of the Auto Scaling Group | `number` | `2` | no |
 | <a name="input_asg_enable_monitoring"></a> [asg\_enable\_monitoring](#input\_asg\_enable\_monitoring) | Enable monitoring for the Auto Scaling Group | `bool` | `true` | no |
 | <a name="input_asg_health_check_grace_period"></a> [asg\_health\_check\_grace\_period](#input\_asg\_health\_check\_grace\_period) | Health check grace period for instances in the Auto Scaling Group | `number` | `300` | no |
@@ -85,13 +85,24 @@
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | Backup retention period (in days) for the RDS instance | `number` | `7` | no |
 | <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | Preferred backup window for the RDS instance | `string` | `"03:00-05:00"` | no |
 | <a name="input_cidr"></a> [cidr](#input\_cidr) | CIDR block for the VPC | `string` | `"10.3.0.0/16"` | no |
+| <a name="input_create_alb_route53_record"></a> [create\_alb\_route53\_record](#input\_create\_alb\_route53\_record) | Whether to create ALB - Route53 record | `bool` | `true` | no |
 | <a name="input_create_alb_sg"></a> [create\_alb\_sg](#input\_create\_alb\_sg) | Whether to create the Application Load Balancer (ALB) security group. | `bool` | `true` | no |
+| <a name="input_create_certificates"></a> [create\_certificates](#input\_create\_certificates) | Controls if certificate should be generated | `bool` | `true` | no |
 | <a name="input_create_custom_policy"></a> [create\_custom\_policy](#input\_create\_custom\_policy) | Whether to create custom policy | `bool` | `true` | no |
 | <a name="input_create_db_subnet_group"></a> [create\_db\_subnet\_group](#input\_create\_db\_subnet\_group) | Create a new DB subnet group | `bool` | `true` | no |
 | <a name="input_create_ec2_sg"></a> [create\_ec2\_sg](#input\_create\_ec2\_sg) | Whether to create the EC2 instance security group. | `bool` | `true` | no |
+| <a name="input_create_efs_parameters"></a> [create\_efs\_parameters](#input\_create\_efs\_parameters) | Whether to store efs parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_efs_sg"></a> [create\_efs\_sg](#input\_create\_efs\_sg) | Whether to create the Elastic File System (EFS) security group. | `bool` | `true` | no |
+| <a name="input_create_instance_profile"></a> [create\_instance\_profile](#input\_create\_instance\_profile) | Whether to create an instance profile | `bool` | `true` | no |
+| <a name="input_create_launch_template"></a> [create\_launch\_template](#input\_create\_launch\_template) | Whether to create new launch template | `bool` | `true` | no |
+| <a name="input_create_lb"></a> [create\_lb](#input\_create\_lb) | Controls if the Load Balancer should be created | `bool` | `true` | no |
+| <a name="input_create_primary_database"></a> [create\_primary\_database](#input\_create\_primary\_database) | Whether to create primary database | `bool` | `true` | no |
+| <a name="input_create_primary_db_parameters"></a> [create\_primary\_db\_parameters](#input\_create\_primary\_db\_parameters) | Whether to store primary database parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_rds_sg"></a> [create\_rds\_sg](#input\_create\_rds\_sg) | Whether to create the RDS security group. | `bool` | `true` | no |
+| <a name="input_create_replica_database"></a> [create\_replica\_database](#input\_create\_replica\_database) | Whether to create replica database. `create_primary_database` must be `true` | `bool` | `true` | no |
+| <a name="input_create_replica_db_parameters"></a> [create\_replica\_db\_parameters](#input\_create\_replica\_db\_parameters) | Whether to store replica database parameters on SSM parameter store | `bool` | `false` | no |
 | <a name="input_create_ssh_sg"></a> [create\_ssh\_sg](#input\_create\_ssh\_sg) | Whether to create the SSH security group. | `bool` | `true` | no |
+| <a name="input_create_vpc"></a> [create\_vpc](#input\_create\_vpc) | Controls if VPC should be created | `bool` | `true` | no |
 | <a name="input_custom_iam_policy_description"></a> [custom\_iam\_policy\_description](#input\_custom\_iam\_policy\_description) | Description for the IAM policy. Required if `create_custom_policy` set to `true` | `string` | `"List all s3 buckets"` | no |
 | <a name="input_custom_iam_policy_json"></a> [custom\_iam\_policy\_json](#input\_custom\_iam\_policy\_json) | JSON policy document. Required if `create_custom_policy` set to `true` | `string` | `"{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:ListAllMyBuckets\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"` | no |
 | <a name="input_custom_iam_policy_name_prefix"></a> [custom\_iam\_policy\_name\_prefix](#input\_custom\_iam\_policy\_name\_prefix) | Prefix for the IAM policy name. Required if `create_custom_policy` set to `true` | `string` | `"ListAllS3Buckets"` | no |
@@ -107,6 +118,7 @@
 | <a name="input_delete_automated_backups"></a> [delete\_automated\_backups](#input\_delete\_automated\_backups) | Delete automated backups when the RDS instance is deleted | `bool` | `true` | no |
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | Enable or disable deletion protection for the RDS instance | `bool` | `false` | no |
 | <a name="input_ec2_sg_name"></a> [ec2\_sg\_name](#input\_ec2\_sg\_name) | Name of the ec2 security group | `string` | `"aws-ref-ec2-sg"` | no |
+| <a name="input_efs_create"></a> [efs\_create](#input\_efs\_create) | Whether to create Elastic File System | `bool` | `false` | no |
 | <a name="input_efs_encrypted"></a> [efs\_encrypted](#input\_efs\_encrypted) | Whether to enable encryption for the EFS file system | `bool` | `true` | no |
 | <a name="input_efs_mount_target_security_group_ids"></a> [efs\_mount\_target\_security\_group\_ids](#input\_efs\_mount\_target\_security\_group\_ids) | List of security group IDs for EFS mount targets | `list(string)` | `[]` | no |
 | <a name="input_efs_mount_target_subnet_ids"></a> [efs\_mount\_target\_subnet\_ids](#input\_efs\_mount\_target\_subnet\_ids) | List of subnet IDs for EFS mount targets | `list(string)` | `[]` | no |
@@ -124,7 +136,6 @@
 | <a name="input_general_tags"></a> [general\_tags](#input\_general\_tags) | General tags to apply to resources created | `map(string)` | <pre>{<br>  "Env": "dev",<br>  "Project_name": "aws-ref-architecture",<br>  "Team": "platform-team"<br>}</pre> | no |
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Enable IAM database authentication | `bool` | `false` | no |
 | <a name="input_instance_class"></a> [instance\_class](#input\_instance\_class) | RDS instance class | `string` | `"db.t3.micro"` | no |
-| <a name="input_instance_profile_create_instance_profile"></a> [instance\_profile\_create\_instance\_profile](#input\_instance\_profile\_create\_instance\_profile) | Whether to create an instance profile | `bool` | `true` | no |
 | <a name="input_instance_profile_custom_policy_arns"></a> [instance\_profile\_custom\_policy\_arns](#input\_instance\_profile\_custom\_policy\_arns) | List of ARNs of custom policies(created outside of this project) to attach to the role | `list(string)` | <pre>[<br>  "arn:aws:iam::391178969547:policy/AllowFromJapan",<br>  "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices"<br>]</pre> | no |
 | <a name="input_instance_profile_instance_profile_name"></a> [instance\_profile\_instance\_profile\_name](#input\_instance\_profile\_instance\_profile\_name) | Name of the IAM instance profile | `string` | `"aws-ref-instance-role"` | no |
 | <a name="input_instance_profile_managed_policy_arns"></a> [instance\_profile\_managed\_policy\_arns](#input\_instance\_profile\_managed\_policy\_arns) | List of ARNs of managed policies to attach to the role | `list(string)` | <pre>[<br>  "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",<br>  "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",<br>  "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",<br>  "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"<br>]</pre> | no |

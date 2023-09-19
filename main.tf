@@ -2,7 +2,10 @@
 #                        VPC
 ######################################################
 module "vpc" {
-  source = "shamimice03/vpc/aws"
+  source  = "shamimice03/vpc/aws"
+  version = "1.2.1"
+
+  create = var.create_vpc
 
   vpc_name = var.vpc_name
   cidr     = var.cidr
@@ -39,11 +42,19 @@ locals {
   efs_sg_name = coalesce(var.efs_sg_name, "efs-sg")
   rds_sg_name = coalesce(var.rds_sg_name, "rds-sg")
   ssh_sg_name = coalesce(var.ssh_sg_name, "ssh-sg")
+
+  create_alb_sg = var.create_vpc && var.create_alb_sg
+  create_ec2_sg = var.create_vpc && var.create_ec2_sg
+  create_efs_sg = var.create_vpc && var.create_efs_sg
+  create_rds_sg = var.create_vpc && var.create_rds_sg
+  create_ssh_sg = var.create_vpc && var.create_ssh_sg
 }
 
 module "alb_sg" {
-  source = "terraform-aws-modules/security-group/aws"
-  create = var.create_alb_sg
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = local.create_alb_sg
 
   vpc_id      = local.vpc_id
   name        = local.alb_sg_name
@@ -57,8 +68,10 @@ module "alb_sg" {
 }
 
 module "ec2_sg" {
-  source = "terraform-aws-modules/security-group/aws"
-  create = var.create_ec2_sg
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = local.create_ec2_sg
 
   vpc_id      = local.vpc_id
   name        = local.ec2_sg_name
@@ -76,8 +89,10 @@ module "ec2_sg" {
 }
 
 module "efs_sg" {
-  source = "terraform-aws-modules/security-group/aws"
-  create = var.create_efs_sg
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = local.create_efs_sg
 
   vpc_id      = local.vpc_id
   name        = local.efs_sg_name
@@ -99,8 +114,10 @@ module "efs_sg" {
 }
 
 module "rds_sg" {
-  source = "terraform-aws-modules/security-group/aws"
-  create = var.create_rds_sg
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = local.create_rds_sg
 
   vpc_id      = local.vpc_id
   name        = local.rds_sg_name
@@ -122,8 +139,10 @@ module "rds_sg" {
 }
 
 module "ssh_sg" {
-  source = "terraform-aws-modules/security-group/aws"
-  create = var.create_ssh_sg
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = local.create_ssh_sg
 
   vpc_id      = local.vpc_id
   name        = local.ssh_sg_name
@@ -144,7 +163,10 @@ locals {
 }
 
 module "rds" {
-  source = "shamimice03/rds-blueprint/aws"
+  source  = "shamimice03/rds-blueprint/aws"
+  version = "1.3.0"
+
+  create = var.create_primary_database
 
   create_db_subnet_group = var.create_db_subnet_group
   db_subnet_group_name   = var.db_subnet_group_name
@@ -206,11 +228,15 @@ module "rds" {
 #    Read Replica
 ##################################################
 locals {
-  replica_db_identifier = coalesce(var.replica_db_identifier, join("-", [var.db_identifier, "replica"]))
+  replica_db_identifier   = coalesce(var.replica_db_identifier, join("-", [var.db_identifier, "replica"]))
+  create_replica_database = var.create_primary_database && var.create_replica_database
 }
 
 module "rds_replica" {
-  source = "shamimice03/rds-blueprint/aws"
+  source  = "shamimice03/rds-blueprint/aws"
+  version = "1.3.0"
+
+  create = local.create_replica_database
 
   replicate_source_db                 = var.db_identifier
   db_identifier                       = coalesce(var.replica_db_identifier, local.replica_db_identifier)
@@ -254,11 +280,17 @@ locals {
 ##################################################
 #       Primary Database Parameters
 ##################################################
+locals {
+  create_primary_db_parameters = var.create_primary_database && var.create_primary_db_parameters
+}
+
 module "primary_db_parameters" {
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
@@ -266,6 +298,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
@@ -273,6 +306,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
@@ -280,6 +314,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
@@ -287,6 +322,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
@@ -294,6 +330,7 @@ module "primary_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_primary_db_parameters
       name        = join("/", [local.primary_db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
@@ -307,11 +344,17 @@ module "primary_db_parameters" {
 ##################################################
 #       Replica Database Parameters
 ##################################################
+locals {
+  create_replica_db_parameters = var.create_primary_database && var.create_replica_database && var.create_replica_db_parameters
+}
+
 module "replica_db_parameters" {
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBUser"])
       type        = "String"
       description = "Database Username"
@@ -319,6 +362,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBName"])
       type        = "String"
       description = "Initial Database Name"
@@ -326,6 +370,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBEndpoint"])
       type        = "String"
       description = "Database Instance Endpoint"
@@ -333,6 +378,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBHostname"])
       type        = "String"
       description = "Database Instance Hostname"
@@ -340,6 +386,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBPort"])
       type        = "String"
       description = "Database Instance Port"
@@ -347,6 +394,7 @@ module "replica_db_parameters" {
       tags        = var.general_tags
     },
     {
+      create      = local.create_replica_db_parameters
       name        = join("/", [local.replica_db_parameters_prefix, "DBPassword"])
       type        = "SecureString"
       description = "Database password"
@@ -361,14 +409,15 @@ module "replica_db_parameters" {
 #   Elastic File System
 ##################################################
 locals {
-  #efs_parameters_prefix               = join("/", ["/efs", var.efs_name])
   efs_mount_target_subnet_ids         = coalesce(module.vpc.private_subnet_id, var.efs_mount_target_subnet_ids)
   efs_mount_target_security_group_ids = coalesce([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
 }
 
 
 module "efs" {
-  source                              = "./modules/efs"
+  source = "./modules/efs"
+
+  create                              = var.efs_create
   name                                = var.efs_name
   efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
   efs_mount_target_security_group_ids = local.efs_mount_target_security_group_ids
@@ -386,12 +435,18 @@ module "efs" {
 ##################################################
 #       EFS Parameters
 ##################################################
+locals {
+  create_efs_parameters = var.efs_create && var.create_efs_parameters
+}
+
 module "efs_parameters" {
 
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
+      create      = local.create_efs_parameters
       name        = join("/", [local.efs_parameters_prefix, "EFSID"])
       type        = "String"
       description = "The ID that identifies the file system"
@@ -402,84 +457,23 @@ module "efs_parameters" {
 }
 
 ##################################################
-#             Launch Template
-##################################################
-data "aws_ami" "amazonlinux2" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-kernel-*-hvm-*"]
-  }
-}
-
-locals {
-  launch_template_sg_ids                    = coalesce([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id], var.launch_template_sg_ids)
-  launch_template_image_id                  = coalesce(var.launch_template_image_id, data.aws_ami.amazonlinux2.id)
-  launch_template_name_prefix               = coalesce(var.launch_template_name_prefix, var.project_name)
-  launch_template_iam_instance_profile_name = module.instance_profile.profile_name
-  launch_template_userdata_file_path        = join("/", [path.module, var.launch_template_userdata_file_path])
-}
-
-module "launch_template" {
-  source = "./modules/launch-template"
-
-  create = true
-
-  launch_template_name_prefix = local.launch_template_name_prefix
-  image_id                    = local.launch_template_image_id
-  instance_type               = var.launch_template_instance_type
-  key_name                    = var.launch_template_key_name
-  update_default_version      = var.launch_template_update_default_version
-  vpc_security_group_ids      = local.launch_template_sg_ids
-  iam_instance_profile_name   = local.launch_template_iam_instance_profile_name
-  device_name                 = var.launch_template_device_name
-  volume_size                 = var.launch_template_volume_size
-  volume_type                 = var.launch_template_volume_type
-  delete_on_termination       = var.launch_template_delete_on_termination
-  enable_monitoring           = var.launch_template_enable_monitoring
-  user_data_file_path         = filebase64(local.launch_template_userdata_file_path)
-
-  # tag_specifications
-  resource_type = var.launch_template_resource_type
-  tags = merge(
-    { "Name" = local.launch_template_name_prefix },
-    var.general_tags,
-  )
-}
-
-##################################################
 #             ACM - Route53
 ##################################################
 module "acm_route53" {
+  source  = "shamimice03/acm-route53/aws"
+  version = "1.1.0"
 
-  source = "shamimice03/acm-route53/aws"
+  create = var.create_certificates
 
-  domain_name            = var.acm_domain_name_1
+  domain_names           = var.acm_domain_names
   validation_method      = var.acm_validation_method
   hosted_zone_name       = var.acm_hosted_zone_name
   private_zone           = var.acm_private_zone
   allow_record_overwrite = var.acm_allow_record_overwrite
   ttl                    = var.acm_ttl
+
   tags = merge(
-    { "Name" = var.acm_domain_name_1 },
-    var.general_tags,
-  )
-}
-
-module "acm_route53_www" {
-
-  source = "shamimice03/acm-route53/aws"
-
-  domain_name            = var.acm_domain_name_2
-  validation_method      = var.acm_validation_method
-  hosted_zone_name       = var.acm_hosted_zone_name
-  private_zone           = var.acm_private_zone
-  allow_record_overwrite = var.acm_allow_record_overwrite
-  ttl                    = var.acm_ttl
-  tags = merge(
-    { "Name" = var.acm_domain_name_2 },
+    { "Name" = "ssl_cert" },
     var.general_tags,
   )
 }
@@ -487,17 +481,27 @@ module "acm_route53_www" {
 ##################################################
 #                  ALB
 ##################################################
+data "aws_acm_certificate" "issued" {
+  count    = var.create_lb ? 1 : 0
+  domain   = var.alb_acm_certificate_domain_name
+  statuses = ["ISSUED"]
+
+  depends_on = [module.acm_route53]
+}
+
 locals {
   alb_subnets                  = coalesce(module.vpc.public_subnet_id, var.alb_subnets)
   alb_security_groups          = coalesce([module.alb_sg.security_group_id], var.alb_security_groups)
   alb_name_prefix              = coalesce(var.alb_name_prefix, "refalb")
   alb_target_group_name_prefix = coalesce(var.alb_target_group_name_prefix, "ref-tg")
-  alb_certificate_arn          = module.acm_route53.certificate_arn
+  alb_certificate_arn          = data.aws_acm_certificate.issued[0].arn
 }
 
 module "alb" {
-  source = "terraform-aws-modules/alb/aws"
+  source  = "terraform-aws-modules/alb/aws"
+  version = "8.7.0"
 
+  create_lb          = var.create_lb
   name_prefix        = local.alb_name_prefix
   load_balancer_type = var.load_balancer_type
   vpc_id             = local.vpc_id
@@ -566,26 +570,16 @@ locals {
   alb_dns_name = module.alb.lb_dns_name
   alb_zone_id  = module.alb.lb_zone_id
 
-  alb_route53_record_name_1 = coalesce(var.acm_domain_name_1, var.alb_route53_record_name_1)
-  alb_route53_record_name_2 = coalesce(var.acm_domain_name_2, var.alb_route53_record_name_2)
-
+  alb_route53_record_names = coalesce(var.alb_route53_record_names, var.acm_domain_names)
+  alb_route53_zone_name    = coalesce(var.alb_route53_zone_name, var.acm_hosted_zone_name)
 }
 
-module "alb_route53_record_1" {
+module "alb_route53_record" {
   source                 = "./modules/alb-route53"
-  zone_name              = var.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name_1
-  record_type            = var.alb_route53_record_type
-  lb_dns_name            = local.alb_dns_name
-  lb_zone_id             = local.alb_zone_id
-  private_zone           = var.alb_route53_private_zone
-  evaluate_target_health = var.alb_route53_evaluate_target_health
-}
-
-module "alb_route53_record_2" {
-  source                 = "./modules/alb-route53"
-  zone_name              = var.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name_2
+  create_record          = var.create_alb_route53_record
+  allow_record_overwrite = var.alb_route53_allow_record_overwrite
+  record_names           = local.alb_route53_record_names
+  zone_name              = local.alb_route53_zone_name
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id
@@ -597,7 +591,8 @@ module "alb_route53_record_2" {
 # Create custom policy
 #######################################
 module "custom_iam_policy" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = "5.30.0"
 
   create_policy = var.create_custom_policy
 
@@ -625,7 +620,7 @@ module "instance_profile" {
 
   source = "./modules/iam-instance-profile"
 
-  create_instance_profile  = var.instance_profile_create_instance_profile
+  create_instance_profile  = var.create_instance_profile
   role_name                = var.instance_profile_role_name
   instance_profile_name    = var.instance_profile_instance_profile_name
   managed_policy_arns      = var.instance_profile_managed_policy_arns
@@ -634,6 +629,54 @@ module "instance_profile" {
   role_path                = var.instance_profile_role_path
 
   depends_on = [module.custom_iam_policy]
+}
+
+##################################################
+#             Launch Template
+##################################################
+data "aws_ami" "amazonlinux2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-kernel-*-hvm-*"]
+  }
+}
+
+locals {
+  launch_template_sg_ids                    = coalesce([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id], var.launch_template_sg_ids)
+  launch_template_image_id                  = coalesce(var.launch_template_image_id, data.aws_ami.amazonlinux2.id)
+  launch_template_name_prefix               = coalesce(var.launch_template_name_prefix, var.project_name)
+  launch_template_iam_instance_profile_name = module.instance_profile.profile_name
+  launch_template_userdata_file_path        = join("/", [path.module, var.launch_template_userdata_file_path])
+}
+
+module "launch_template" {
+  source = "./modules/launch-template"
+
+  create = var.create_launch_template
+
+  launch_template_name_prefix = local.launch_template_name_prefix
+  image_id                    = local.launch_template_image_id
+  instance_type               = var.launch_template_instance_type
+  key_name                    = var.launch_template_key_name
+  update_default_version      = var.launch_template_update_default_version
+  vpc_security_group_ids      = local.launch_template_sg_ids
+  iam_instance_profile_name   = local.launch_template_iam_instance_profile_name
+  device_name                 = var.launch_template_device_name
+  volume_size                 = var.launch_template_volume_size
+  volume_type                 = var.launch_template_volume_type
+  delete_on_termination       = var.launch_template_delete_on_termination
+  enable_monitoring           = var.launch_template_enable_monitoring
+  user_data_file_path         = filebase64(local.launch_template_userdata_file_path)
+
+  # tag_specifications
+  resource_type = var.launch_template_resource_type
+  tags = merge(
+    { "Name" = local.launch_template_name_prefix },
+    var.general_tags,
+  )
 }
 
 ##################################################
@@ -648,10 +691,12 @@ locals {
 }
 
 module "asg" {
-  source = "terraform-aws-modules/autoscaling/aws"
-  create = true
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "6.10.0"
+
+  create = var.asg_create && var.create_launch_template
   # Do not create launch template using asg module.
-  # launch template created separatly
+  # `launch template` created separately using `launch template` module
   create_launch_template = false
 
   name                    = local.asg_name

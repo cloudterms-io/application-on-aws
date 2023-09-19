@@ -1,3 +1,9 @@
+variable "create" {
+  description = "Whether to create EFS resources"
+  type        = bool
+  default     = true
+}
+
 variable "name" {
   description = "A unique name used as reference when creating the Elastic File System to ensure idempotent file system creation"
   type        = string

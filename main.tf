@@ -2,7 +2,8 @@
 #                        VPC
 ######################################################
 module "vpc" {
-  source = "shamimice03/vpc/aws"
+  source  = "shamimice03/vpc/aws"
+  version = "1.2.1"
 
   create = var.create_vpc
 
@@ -50,7 +51,9 @@ locals {
 }
 
 module "alb_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   create = local.create_alb_sg
 
   vpc_id      = local.vpc_id
@@ -65,7 +68,9 @@ module "alb_sg" {
 }
 
 module "ec2_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   create = local.create_ec2_sg
 
   vpc_id      = local.vpc_id
@@ -84,7 +89,9 @@ module "ec2_sg" {
 }
 
 module "efs_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   create = local.create_efs_sg
 
   vpc_id      = local.vpc_id
@@ -107,7 +114,9 @@ module "efs_sg" {
 }
 
 module "rds_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   create = local.create_rds_sg
 
   vpc_id      = local.vpc_id
@@ -130,7 +139,9 @@ module "rds_sg" {
 }
 
 module "ssh_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
   create = local.create_ssh_sg
 
   vpc_id      = local.vpc_id
@@ -152,7 +163,8 @@ locals {
 }
 
 module "rds" {
-  source = "shamimice03/rds-blueprint/aws"
+  source  = "shamimice03/rds-blueprint/aws"
+  version = "1.3.0"
 
   create = var.create_primary_database
 
@@ -221,7 +233,8 @@ locals {
 }
 
 module "rds_replica" {
-  source = "shamimice03/rds-blueprint/aws"
+  source  = "shamimice03/rds-blueprint/aws"
+  version = "1.3.0"
 
   create = local.create_replica_database
 
@@ -272,7 +285,8 @@ locals {
 }
 
 module "primary_db_parameters" {
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
@@ -335,7 +349,8 @@ locals {
 }
 
 module "replica_db_parameters" {
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
@@ -426,7 +441,8 @@ locals {
 
 module "efs_parameters" {
 
-  source = "shamimice03/ssm-parameter/aws"
+  source  = "shamimice03/ssm-parameter/aws"
+  version = "0.5.0"
 
   parameters = [
     {
@@ -444,33 +460,20 @@ module "efs_parameters" {
 #             ACM - Route53
 ##################################################
 module "acm_route53" {
+  source  = "shamimice03/acm-route53/aws"
+  version = "1.1.0"
 
-  source = "shamimice03/acm-route53/aws"
+  create = var.create_certificates
 
-  domain_name            = var.acm_domain_name
+  domain_names           = var.acm_domain_names
   validation_method      = var.acm_validation_method
   hosted_zone_name       = var.acm_hosted_zone_name
   private_zone           = var.acm_private_zone
   allow_record_overwrite = var.acm_allow_record_overwrite
   ttl                    = var.acm_ttl
+
   tags = merge(
-    { "Name" = var.acm_domain_name },
-    var.general_tags,
-  )
-}
-
-module "acm_route53_www" {
-
-  source = "shamimice03/acm-route53/aws"
-
-  domain_name            = var.acm_domain_name_www
-  validation_method      = var.acm_validation_method
-  hosted_zone_name       = var.acm_hosted_zone_name
-  private_zone           = var.acm_private_zone
-  allow_record_overwrite = var.acm_allow_record_overwrite
-  ttl                    = var.acm_ttl
-  tags = merge(
-    { "Name" = var.acm_domain_name_www },
+    { "Name" = "ssl_cert" },
     var.general_tags,
   )
 }
@@ -478,16 +481,25 @@ module "acm_route53_www" {
 ##################################################
 #                  ALB
 ##################################################
+data "aws_acm_certificate" "issued" {
+  count    = var.create_lb ? 1 : 0
+  domain   = var.alb_acm_certificate_domain_name
+  statuses = ["ISSUED"]
+
+  depends_on = [module.acm_route53]
+}
+
 locals {
   alb_subnets                  = coalesce(module.vpc.public_subnet_id, var.alb_subnets)
   alb_security_groups          = coalesce([module.alb_sg.security_group_id], var.alb_security_groups)
   alb_name_prefix              = coalesce(var.alb_name_prefix, "refalb")
   alb_target_group_name_prefix = coalesce(var.alb_target_group_name_prefix, "ref-tg")
-  alb_certificate_arn          = module.acm_route53.certificate_arn
+  alb_certificate_arn          = data.aws_acm_certificate.issued[0].arn
 }
 
 module "alb" {
-  source = "terraform-aws-modules/alb/aws"
+  source  = "terraform-aws-modules/alb/aws"
+  version = "8.7.0"
 
   create_lb          = var.create_lb
   name_prefix        = local.alb_name_prefix
@@ -558,29 +570,16 @@ locals {
   alb_dns_name = module.alb.lb_dns_name
   alb_zone_id  = module.alb.lb_zone_id
 
-  alb_route53_record_name     = coalesce(var.alb_route53_record_name, var.acm_domain_name)
-  alb_route53_record_name_www = coalesce(var.alb_route53_record_name_www, var.acm_domain_name_www)
-  alb_route53_zone_name       = coalesce(var.alb_route53_zone_name, var.acm_hosted_zone_name)
-
+  alb_route53_record_names = coalesce(var.alb_route53_record_names, var.acm_domain_names)
+  alb_route53_zone_name    = coalesce(var.alb_route53_zone_name, var.acm_hosted_zone_name)
 }
 
 module "alb_route53_record" {
   source                 = "./modules/alb-route53"
   create_record          = var.create_alb_route53_record
+  allow_record_overwrite = var.alb_route53_allow_record_overwrite
+  record_names           = local.alb_route53_record_names
   zone_name              = local.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name
-  record_type            = var.alb_route53_record_type
-  lb_dns_name            = local.alb_dns_name
-  lb_zone_id             = local.alb_zone_id
-  private_zone           = var.alb_route53_private_zone
-  evaluate_target_health = var.alb_route53_evaluate_target_health
-}
-
-module "alb_route53_record_www" {
-  source                 = "./modules/alb-route53"
-  create_record          = var.create_alb_route53_www_record
-  zone_name              = local.alb_route53_zone_name
-  record_name            = local.alb_route53_record_name_www
   record_type            = var.alb_route53_record_type
   lb_dns_name            = local.alb_dns_name
   lb_zone_id             = local.alb_zone_id
@@ -592,7 +591,8 @@ module "alb_route53_record_www" {
 # Create custom policy
 #######################################
 module "custom_iam_policy" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = "5.30.0"
 
   create_policy = var.create_custom_policy
 
@@ -620,7 +620,7 @@ module "instance_profile" {
 
   source = "./modules/iam-instance-profile"
 
-  create_instance_profile  = var.instance_profile_create_instance_profile
+  create_instance_profile  = var.create_instance_profile
   role_name                = var.instance_profile_role_name
   instance_profile_name    = var.instance_profile_instance_profile_name
   managed_policy_arns      = var.instance_profile_managed_policy_arns
@@ -691,11 +691,12 @@ locals {
 }
 
 module "asg" {
-  source = "terraform-aws-modules/autoscaling/aws"
-  create = var.asg_create && var.create_launch_template
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "6.10.0"
 
+  create = var.asg_create && var.create_launch_template
   # Do not create launch template using asg module.
-  # `launch template` created separately using `launch template` module 
+  # `launch template` created separately using `launch template` module
   create_launch_template = false
 
   name                    = local.asg_name

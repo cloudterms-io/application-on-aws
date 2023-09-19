@@ -27,12 +27,13 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_allow_record_overwrite"></a> [allow\_record\_overwrite](#input\_allow\_record\_overwrite) | Allow creation of this record in Terraform to overwrite an existing record | `bool` | `false` | no |
 | <a name="input_create_record"></a> [create\_record](#input\_create\_record) | Whether to create DNS record | `bool` | `true` | no |
 | <a name="input_evaluate_target_health"></a> [evaluate\_target\_health](#input\_evaluate\_target\_health) | Whether to evaluate the target health of the alias record | `bool` | `true` | no |
 | <a name="input_lb_dns_name"></a> [lb\_dns\_name](#input\_lb\_dns\_name) | The DNS name to which the record should alias | `string` | `""` | no |
 | <a name="input_lb_zone_id"></a> [lb\_zone\_id](#input\_lb\_zone\_id) | The Route 53 zone ID of the alias target | `string` | `""` | no |
 | <a name="input_private_zone"></a> [private\_zone](#input\_private\_zone) | Whether the Route 53 zone is private or not | `bool` | `false` | no |
-| <a name="input_record_name"></a> [record\_name](#input\_record\_name) | The name of the Route 53 record | `string` | `""` | no |
+| <a name="input_record_names"></a> [record\_names](#input\_record\_names) | The name of the Route 53 records | `list(string)` | `[]` | no |
 | <a name="input_record_type"></a> [record\_type](#input\_record\_type) | The type of the Route 53 record (e.g., A, CNAME, etc.) | `string` | `""` | no |
 | <a name="input_zone_name"></a> [zone\_name](#input\_zone\_name) | The name of the Route 53 zone | `string` | `""` | no |
 

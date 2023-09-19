@@ -119,8 +119,11 @@ launch_template_resource_type          = "instance"
 
 
 ### ACM - Route53
-acm_domain_name            = "test.kubecloud.net"
-acm_domain_name_www        = "www.test.kubecloud.net"
+create_certificates = true
+acm_domain_names = [
+  "test.kubecloud.net",
+  "www.test.kubecloud.net",
+]
 acm_hosted_zone_name       = "kubecloud.net"
 acm_validation_method      = "DNS"
 acm_private_zone           = false
@@ -128,22 +131,26 @@ acm_allow_record_overwrite = true
 acm_ttl                    = 60
 
 ### ALB
-alb_name_prefix              = "awsref"
-load_balancer_type           = "application"
-alb_subnets                  = [] # This will be populated by module.vpc.public_subnet_id,
-alb_security_groups          = [] # This will be populated by module.alb_sg.security_group_id
-alb_target_group_name_prefix = "ref-tg"
-#alb_certificate_arn          = "" # This will be populated by module.acm_route53.certificate_arn
+create_lb                       = true
+alb_name_prefix                 = "awsref"
+load_balancer_type              = "application"
+alb_subnets                     = [] # This will be populated by module.vpc.public_subnet_id,
+alb_security_groups             = [] # This will be populated by module.alb_sg.security_group_id
+alb_target_group_name_prefix    = "ref-tg"
+alb_acm_certificate_domain_name = "test.kubecloud.net"
 
-### ALB - Route53
-create_alb_route53_record          = true
-alb_route53_record_name            = "test.kubecloud.net"
-create_alb_route53_www_record      = true
-alb_route53_record_name_www        = "www.test.kubecloud.net"
+### ALB - Route5
+create_alb_route53_record = true
+# if record name and zone name not given. It will featch it from `ACM-Route53 Module`
+alb_route53_record_names = [
+  "test.kubecloud.net",
+  "www.test.kubecloud.net",
+]
 alb_route53_zone_name              = "kubecloud.net"
 alb_route53_record_type            = "A"
 alb_route53_private_zone           = false
 alb_route53_evaluate_target_health = true
+alb_route53_allow_record_overwrite = true
 
 ### Custom Policy
 create_custom_policy          = true
@@ -164,9 +171,9 @@ custom_iam_policy_json        = <<EOF
 EOF
 
 ### IAM Instance Profile
-instance_profile_create_instance_profile = true
-instance_profile_role_name               = "aws-ref-instance-role"
-instance_profile_instance_profile_name   = "aws-ref-instance-role"
+create_instance_profile                = true
+instance_profile_role_name             = "aws-ref-instance-role"
+instance_profile_instance_profile_name = "aws-ref-instance-role"
 instance_profile_managed_policy_arns = [
   "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
   "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",

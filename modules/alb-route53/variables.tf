@@ -4,16 +4,22 @@ variable "create_record" {
   default     = true
 }
 
+variable "allow_record_overwrite" {
+  description = "Allow creation of this record in Terraform to overwrite an existing record"
+  type        = bool
+  default     = false
+}
+
 variable "zone_name" {
   description = "The name of the Route 53 zone"
   type        = string
   default     = ""
 }
 
-variable "record_name" {
-  description = "The name of the Route 53 record"
-  type        = string
-  default     = ""
+variable "record_names" {
+  description = "The name of the Route 53 records"
+  type        = list(string)
+  default     = []
 }
 
 variable "record_type" {

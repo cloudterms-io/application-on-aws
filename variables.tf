@@ -575,16 +575,16 @@ variable "launch_template_resource_type" {
 }
 
 ######################## ACM - Route53 ########################
-variable "acm_domain_name" {
-  description = "Domain name for ACM certificate"
-  type        = string
-  default     = "test.kubecloud.net"
+variable "create_certificates" {
+  description = "Controls if certificate should be generated"
+  type        = bool
+  default     = true
 }
 
-variable "acm_domain_name_www" {
+variable "acm_domain_names" {
   description = "Domain name for ACM certificate"
-  type        = string
-  default     = "www.test.kubecloud.net"
+  type        = list(string)
+  default     = []
 }
 
 variable "acm_validation_method" {
@@ -617,7 +617,6 @@ variable "acm_ttl" {
   default     = 60
 }
 
-
 ######################## ALB ########################
 variable "create_lb" {
   description = "Controls if the Load Balancer should be created"
@@ -628,7 +627,7 @@ variable "create_lb" {
 variable "alb_name_prefix" {
   description = "Prefix for the Application Load Balancer name"
   type        = string
-  default     = "awsref"
+  default     = ""
 }
 
 variable "load_balancer_type" {
@@ -652,24 +651,18 @@ variable "alb_security_groups" {
 variable "alb_target_group_name_prefix" {
   description = "Prefix for the ALB target group name"
   type        = string
-  default     = "ref-tg"
+  default     = ""
 }
 
-# variable "alb_certificate_arn" {
-#   description = "ARN of the ACM certificate for the Application Load Balancer (ALB)"
-#   type        = string
-#   default     = ""
-# }
+variable "alb_acm_certificate_domain_name" {
+  description = "ACM Certificate domain name"
+  type        = string
+  default     = ""
+}
 
 ######################### ALB - Route53 ###################
 variable "create_alb_route53_record" {
   description = "Whether to create ALB - Route53 record"
-  type        = bool
-  default     = true
-}
-
-variable "create_alb_route53_www_record" {
-  description = "Whether to create ALB - Route53 WWW record"
   type        = bool
   default     = true
 }
@@ -680,16 +673,10 @@ variable "alb_route53_zone_name" {
   default     = "kubecloud.net"
 }
 
-variable "alb_route53_record_name" {
+variable "alb_route53_record_names" {
   description = "The DNS record name for the first ALB record"
-  type        = string
-  default     = "test.kubecloud.net"
-}
-
-variable "alb_route53_record_name_www" {
-  description = "The DNS record name for the second ALB record"
-  type        = string
-  default     = "www.test.kubecloud.net"
+  type        = list(string)
+  default     = []
 }
 
 variable "alb_route53_record_type" {
@@ -708,6 +695,12 @@ variable "alb_route53_evaluate_target_health" {
   description = "Whether to evaluate the target health of the ALB"
   type        = bool
   default     = true
+}
+
+variable "alb_route53_allow_record_overwrite" {
+  description = "Allow creation of this record in Terraform to overwrite an existing record"
+  type        = bool
+  default     = false
 }
 
 ######################## Create custom policy ########################
@@ -753,7 +746,7 @@ EOF
 }
 
 ######################## IAM Instance Profile ########################
-variable "instance_profile_create_instance_profile" {
+variable "create_instance_profile" {
   description = "Whether to create an instance profile"
   type        = bool
   default     = true
@@ -802,18 +795,6 @@ variable "asg_create" {
   description = "Whether to create asg or not"
   type        = bool
   default     = true
-}
-
-variable "asg_launch_template_name" {
-  description = "Name of the existing launch template"
-  type        = string
-  default     = ""
-}
-
-variable "asg_launch_template_version" {
-  description = "Version of the existing launch template. Can be version number, $Latest, or $Default"
-  type        = string
-  default     = "$Default"
 }
 
 variable "asg_name" {

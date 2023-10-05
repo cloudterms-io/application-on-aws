@@ -34,7 +34,7 @@ create_ssh_sg = true
 ssh_sg_name   = "aws-ref-ssh-sg"
 
 ### Primary Database
-create_primary_database = false # database won't be created
+create_primary_database = true # database won't be created
 
 db_identifier                       = "aws-ref-db"
 create_db_subnet_group              = true

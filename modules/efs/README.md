@@ -30,6 +30,7 @@ No modules.
 | <a name="input_create"></a> [create](#input\_create) | Whether to create EFS resources | `bool` | `true` | no |
 | <a name="input_efs_encrypted"></a> [efs\_encrypted](#input\_efs\_encrypted) | Whether EFS should be encrypted | `bool` | `true` | no |
 | <a name="input_efs_mount_target_security_group_ids"></a> [efs\_mount\_target\_security\_group\_ids](#input\_efs\_mount\_target\_security\_group\_ids) | IDs of the mount targets security group for EFS | `list(string)` | `[]` | no |
+| <a name="input_efs_mount_target_subnet_count"></a> [efs\_mount\_target\_subnet\_count](#input\_efs\_mount\_target\_subnet\_count) | Number of efs mount target subnets | `number` | `0` | no |
 | <a name="input_efs_mount_target_subnet_ids"></a> [efs\_mount\_target\_subnet\_ids](#input\_efs\_mount\_target\_subnet\_ids) | List of mount targets subnet IDs | `list(string)` | `[]` | no |
 | <a name="input_efs_performance_mode"></a> [efs\_performance\_mode](#input\_efs\_performance\_mode) | EFS performance mode (e.g., 'generalPurpose', 'maxIO') | `string` | `"generalPurpose"` | no |
 | <a name="input_efs_tags"></a> [efs\_tags](#input\_efs\_tags) | Tags for the EFS file system | `map(string)` | `{}` | no |

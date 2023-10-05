@@ -14,7 +14,9 @@ No providers.
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_aws_ref"></a> [aws\_ref](#module\_aws\_ref) | ../../ | n/a |
 
 ## Resources
 

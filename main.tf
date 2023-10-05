@@ -411,6 +411,7 @@ module "replica_db_parameters" {
 locals {
   efs_mount_target_subnet_ids         = coalesce(module.vpc.private_subnet_id, var.efs_mount_target_subnet_ids)
   efs_mount_target_security_group_ids = coalesce([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
+  efs_mount_target_subnet_count       = length(coalesce(var.private_subnet_cidr, var.efs_mount_target_subnet_ids))
 }
 
 
@@ -421,6 +422,7 @@ module "efs" {
   name                                = var.efs_name
   efs_mount_target_subnet_ids         = local.efs_mount_target_subnet_ids
   efs_mount_target_security_group_ids = local.efs_mount_target_security_group_ids
+  efs_mount_target_subnet_count       = local.efs_mount_target_subnet_count
   efs_encrypted                       = var.efs_encrypted
   efs_throughput_mode                 = var.efs_throughput_mode
   efs_performance_mode                = var.efs_performance_mode
@@ -430,6 +432,8 @@ module "efs" {
     { "Name" = var.efs_name },
     var.general_tags,
   )
+
+  depends_on = [module.vpc.private_subnet_id, module.efs_sg.security_group_id]
 }
 
 ##################################################
@@ -614,6 +618,7 @@ module "custom_iam_policy" {
 locals {
   instance_profile_custom_policy_arns       = compact(concat(var.instance_profile_custom_policy_arns, [module.custom_iam_policy.arn]))
   instance_profile_custom_policy_arns_count = length(var.instance_profile_custom_policy_arns) + (var.create_custom_policy ? 1 : 0)
+  instance_profile_instance_profile_name    = coalesce(var.instance_profile_instance_profile_name, var.instance_profile_role_name)
 }
 
 module "instance_profile" {
@@ -622,7 +627,7 @@ module "instance_profile" {
 
   create_instance_profile  = var.create_instance_profile
   role_name                = var.instance_profile_role_name
-  instance_profile_name    = var.instance_profile_instance_profile_name
+  instance_profile_name    = local.instance_profile_instance_profile_name
   managed_policy_arns      = var.instance_profile_managed_policy_arns
   custom_policy_arns       = local.instance_profile_custom_policy_arns
   custom_policy_arns_count = local.instance_profile_custom_policy_arns_count

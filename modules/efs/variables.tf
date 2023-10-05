@@ -16,6 +16,12 @@ variable "efs_mount_target_subnet_ids" {
   default     = []
 }
 
+variable "efs_mount_target_subnet_count" {
+  description = "Number of efs mount target subnets"
+  type        = number
+  default     = 0
+}
+
 variable "efs_mount_target_security_group_ids" {
   description = "IDs of the mount targets security group for EFS"
   type        = list(string)

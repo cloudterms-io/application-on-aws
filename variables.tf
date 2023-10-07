@@ -22,6 +22,12 @@ variable "create_vpc" {
   default     = true
 }
 
+variable "vpc_id" {
+  description = "Id of the VPC.Required while provisioning on an existing VPC"
+  type        = string
+  default     = ""
+}
+
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -31,31 +37,37 @@ variable "vpc_name" {
 variable "cidr" {
   description = "CIDR block for the VPC"
   type        = string
-  default     = "10.3.0.0/16"
+  default     = ""
 }
 
 variable "azs" {
   description = "Availability Zones for subnets"
   type        = list(string)
-  default     = ["ap-northeast-1a", "ap-northeast-1c"]
+  default     = []
 }
 
 variable "public_subnet_cidr" {
   description = "CIDR blocks for public subnets"
   type        = list(string)
-  default     = ["10.3.0.0/20", "10.3.16.0/20"]
+  default     = []
 }
 
-variable "private_subnet_cidr" {
-  description = "CIDR blocks for private subnets"
+# variable "private_subnet_cidr" {
+#   description = "CIDR blocks for private subnets"
+#   type        = list(string)
+#   default     = []
+# }
+
+variable "intra_subnet_cidr" {
+  description = "CIDR blocks for intra subnets. Used as EFS subnets"
   type        = list(string)
-  default     = ["10.3.32.0/20", "10.3.48.0/20"]
+  default     = []
 }
 
 variable "db_subnet_cidr" {
   description = "CIDR blocks for database subnets"
   type        = list(string)
-  default     = ["10.3.64.0/20", "10.3.80.0/20"]
+  default     = []
 }
 
 variable "enable_dns_hostnames" {
@@ -80,7 +92,7 @@ variable "enable_single_nat_gateway" {
 variable "create_alb_sg" {
   description = "Whether to create the Application Load Balancer (ALB) security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "alb_sg_name" {
@@ -92,7 +104,7 @@ variable "alb_sg_name" {
 variable "create_ec2_sg" {
   description = "Whether to create the EC2 instance security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "ec2_sg_name" {
@@ -104,7 +116,7 @@ variable "ec2_sg_name" {
 variable "create_efs_sg" {
   description = "Whether to create the Elastic File System (EFS) security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "efs_sg_name" {
@@ -116,7 +128,7 @@ variable "efs_sg_name" {
 variable "create_rds_sg" {
   description = "Whether to create the RDS security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "rds_sg_name" {
@@ -126,15 +138,21 @@ variable "rds_sg_name" {
 }
 
 variable "create_ssh_sg" {
-  description = "Whether to create the SSH security group."
+  description = "Whether to create the SSH security group"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "ssh_sg_name" {
   description = "Name of the SSH security group"
   type        = string
   default     = "aws-ref-ssh-sg"
+}
+
+variable "ssh_ingress_cidr" {
+  description = "List of CIDR blocks allowed to SSH into the EC2 instances"
+  type        = list(any)
+  default     = []
 }
 
 ######################## Primary Database ###########################
@@ -707,7 +725,7 @@ variable "alb_route53_allow_record_overwrite" {
 variable "create_custom_policy" {
   description = "Whether to create custom policy"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "custom_iam_policy_name_prefix" {
@@ -773,7 +791,7 @@ variable "instance_profile_role_path" {
 
 ######################## AutoScaling Group  ########################
 variable "asg_create" {
-  description = "Whether to create asg or not"
+  description = "Whether to create asg or not. asg dependent on `Launch Template`"
   type        = bool
   default     = true
 }

@@ -13,7 +13,7 @@ resource "aws_efs_file_system" "this" {
 }
 
 resource "aws_efs_mount_target" "efs_mount" {
-  count           = var.efs_mount_target_subnet_count
+  count           = var.create ? var.efs_mount_target_subnet_count : 0
   file_system_id  = aws_efs_file_system.this[0].id
   subnet_id       = var.efs_mount_target_subnet_ids[count.index]
   security_groups = var.efs_mount_target_security_group_ids

@@ -10,17 +10,17 @@ module "vpc" {
   vpc_name = var.vpc_name
   cidr     = var.cidr
 
-  azs                 = var.azs
-  public_subnet_cidr  = var.public_subnet_cidr
-  private_subnet_cidr = var.private_subnet_cidr
-  db_subnet_cidr      = var.db_subnet_cidr
+  azs                = var.azs
+  public_subnet_cidr = var.public_subnet_cidr
+  intra_subnet_cidr  = var.intra_subnet_cidr
+  db_subnet_cidr     = var.db_subnet_cidr
 
   enable_dns_hostnames      = var.enable_dns_hostnames
   enable_dns_support        = var.enable_dns_support
   enable_single_nat_gateway = var.enable_single_nat_gateway
 
   tags = merge(
-    { "Name" = var.vpc_name },
+    { "VPC_name" = var.vpc_name },
     var.general_tags,
   )
 }
@@ -29,7 +29,7 @@ module "vpc" {
 #                     Security Groups
 ######################################################
 locals {
-  vpc_id = module.vpc.vpc_id
+  vpc_id = coalesce(module.vpc.vpc_id, var.vpc_id)
 
   alb_sg_description = "Allow HTTP and HTTPS traffic from anywhere"
   ec2_sg_description = "Allow inbound traffic from ALB"
@@ -43,11 +43,11 @@ locals {
   rds_sg_name = coalesce(var.rds_sg_name, "rds-sg")
   ssh_sg_name = coalesce(var.ssh_sg_name, "ssh-sg")
 
-  create_alb_sg = var.create_vpc && var.create_alb_sg
-  create_ec2_sg = var.create_vpc && var.create_ec2_sg
-  create_efs_sg = var.create_vpc && var.create_efs_sg
-  create_rds_sg = var.create_vpc && var.create_rds_sg
-  create_ssh_sg = var.create_vpc && var.create_ssh_sg
+  create_alb_sg = var.create_alb_sg
+  create_ec2_sg = var.create_ec2_sg
+  create_efs_sg = var.create_efs_sg
+  create_rds_sg = var.create_rds_sg
+  create_ssh_sg = var.create_ssh_sg
 }
 
 module "alb_sg" {
@@ -149,7 +149,7 @@ module "ssh_sg" {
   description = local.ssh_sg_description
 
   ingress_rules       = ["ssh-tcp"]
-  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_cidr_blocks = var.ssh_ingress_cidr
 
   egress_rules       = ["ssh-tcp"]
   egress_cidr_blocks = ["0.0.0.0/0"]
@@ -170,7 +170,7 @@ module "rds" {
 
   create_db_subnet_group = var.create_db_subnet_group
   db_subnet_group_name   = var.db_subnet_group_name
-  db_subnets             = coalesce(module.vpc.db_subnet_id, var.db_subnets)
+  db_subnets             = coalescelist(module.vpc.db_subnet_id, var.db_subnets)
 
   # Identify DB instance
   db_identifier = var.db_identifier
@@ -200,7 +200,7 @@ module "rds" {
   max_allocated_storage = var.max_allocated_storage
 
   # Connectivity
-  db_security_groups  = coalesce(local.rds_security_groups, var.db_security_groups)
+  db_security_groups  = coalescelist(local.rds_security_groups, var.db_security_groups)
   publicly_accessible = var.publicly_accessible
   database_port       = var.database_port
 
@@ -239,26 +239,26 @@ module "rds_replica" {
   create = local.create_replica_database
 
   replicate_source_db                 = var.db_identifier
-  db_identifier                       = coalesce(var.replica_db_identifier, local.replica_db_identifier)
-  multi_az                            = coalesce(var.replica_multi_az, var.multi_az)
-  availability_zone                   = coalesce(var.replica_db_availability_zone, var.master_db_availability_zone)
-  engine                              = coalesce(var.replica_engine, var.engine)
-  engine_version                      = coalesce(var.replica_engine_version, var.engine_version)
-  instance_class                      = coalesce(var.replica_instance_class, var.instance_class)
-  iam_database_authentication_enabled = coalesce(var.replica_iam_database_authentication_enabled, var.iam_database_authentication_enabled)
-  storage_type                        = coalesce(var.replica_storage_type, var.storage_type)
-  max_allocated_storage               = coalesce(var.replica_max_allocated_storage, var.max_allocated_storage)
-  db_security_groups                  = coalesce(local.rds_security_groups, var.db_security_groups)
-  publicly_accessible                 = coalesce(var.replica_publicly_accessible, var.publicly_accessible)
-  database_port                       = coalesce(var.replica_database_port, var.database_port)
-  backup_retention_period             = coalesce(var.replica_backup_retention_period, var.backup_retention_period)
-  backup_window                       = coalesce(var.replica_backup_window, var.backup_window)
-  maintenance_window                  = coalesce(var.replica_maintenance_window, var.maintenance_window)
-  deletion_protection                 = coalesce(var.replica_deletion_protection, var.deletion_protection)
-  enabled_cloudwatch_logs_exports     = coalesce(var.replica_enabled_cloudwatch_logs_exports, var.enabled_cloudwatch_logs_exports)
-  apply_immediately                   = coalesce(var.replica_apply_immediately, var.apply_immediately)
-  delete_automated_backups            = coalesce(var.replica_delete_automated_backups, var.delete_automated_backups)
-  skip_final_snapshot                 = coalesce(var.replica_skip_final_snapshot, var.skip_final_snapshot)
+  db_identifier                       = try(coalesce(var.replica_db_identifier, local.replica_db_identifier), "")
+  multi_az                            = try(coalesce(var.replica_multi_az, var.multi_az), "")
+  availability_zone                   = try(coalesce(var.replica_db_availability_zone, var.master_db_availability_zone, null), "")
+  engine                              = try(coalesce(var.replica_engine, var.engine), "")
+  engine_version                      = try(coalesce(var.replica_engine_version, var.engine_version), "")
+  instance_class                      = try(coalesce(var.replica_instance_class, var.instance_class), "")
+  iam_database_authentication_enabled = try(coalesce(var.replica_iam_database_authentication_enabled, var.iam_database_authentication_enabled), "")
+  storage_type                        = try(coalesce(var.replica_storage_type, var.storage_type), "")
+  max_allocated_storage               = try(coalesce(var.replica_max_allocated_storage, var.max_allocated_storage), "")
+  db_security_groups                  = try(coalescelist(local.rds_security_groups, var.db_security_groups), [])
+  publicly_accessible                 = try(coalesce(var.replica_publicly_accessible, var.publicly_accessible), "")
+  database_port                       = try(coalesce(var.replica_database_port, var.database_port), "")
+  backup_retention_period             = try(coalesce(var.replica_backup_retention_period, var.backup_retention_period), "")
+  backup_window                       = try(coalesce(var.replica_backup_window, var.backup_window), "")
+  maintenance_window                  = try(coalesce(var.replica_maintenance_window, var.maintenance_window), "")
+  deletion_protection                 = try(coalesce(var.replica_deletion_protection, var.deletion_protection), "")
+  enabled_cloudwatch_logs_exports     = try(coalesce(var.replica_enabled_cloudwatch_logs_exports, var.enabled_cloudwatch_logs_exports), "")
+  apply_immediately                   = try(coalesce(var.replica_apply_immediately, var.apply_immediately), "")
+  delete_automated_backups            = try(coalesce(var.replica_delete_automated_backups, var.delete_automated_backups), "")
+  skip_final_snapshot                 = try(coalesce(var.replica_skip_final_snapshot, var.skip_final_snapshot), "")
 
   tags = merge(
     { "Name" = "${var.db_identifier}-replica" },
@@ -267,6 +267,7 @@ module "rds_replica" {
 
   depends_on = [module.rds]
 }
+
 
 ##################################################
 # Store Database Parameters to SSM Parameter Store
@@ -409,9 +410,9 @@ module "replica_db_parameters" {
 #   Elastic File System
 ##################################################
 locals {
-  efs_mount_target_subnet_ids         = coalesce(module.vpc.private_subnet_id, var.efs_mount_target_subnet_ids)
-  efs_mount_target_security_group_ids = coalesce([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
-  efs_mount_target_subnet_count       = length(coalesce(var.private_subnet_cidr, var.efs_mount_target_subnet_ids))
+  efs_mount_target_subnet_ids         = coalescelist(module.vpc.intra_subnet_id, var.efs_mount_target_subnet_ids)
+  efs_mount_target_security_group_ids = coalescelist([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
+  efs_mount_target_subnet_count       = length(coalesce(var.intra_subnet_cidr, var.efs_mount_target_subnet_ids))
 }
 
 
@@ -433,7 +434,7 @@ module "efs" {
     var.general_tags,
   )
 
-  depends_on = [module.vpc.private_subnet_id, module.efs_sg.security_group_id]
+  depends_on = [module.vpc.intra_subnet_id, module.efs_sg.security_group_id]
 }
 
 ##################################################
@@ -494,8 +495,8 @@ data "aws_acm_certificate" "issued" {
 }
 
 locals {
-  alb_subnets                  = coalesce(module.vpc.public_subnet_id, var.alb_subnets)
-  alb_security_groups          = coalesce([module.alb_sg.security_group_id], var.alb_security_groups)
+  alb_subnets                  = coalescelist(module.vpc.public_subnet_id, var.alb_subnets)
+  alb_security_groups          = coalescelist([module.alb_sg.security_group_id], var.alb_security_groups)
   alb_name_prefix              = coalesce(var.alb_name_prefix, "refalb")
   alb_target_group_name_prefix = coalesce(var.alb_target_group_name_prefix, "ref-tg")
   alb_certificate_arn          = data.aws_acm_certificate.issued[0].arn
@@ -650,12 +651,15 @@ data "aws_ami" "amazonlinux2" {
 }
 
 locals {
-  launch_template_sg_ids                    = coalesce([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id], var.launch_template_sg_ids)
+  launch_template_sg_ids                    = coalescelist([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id], var.launch_template_sg_ids)
   launch_template_image_id                  = coalesce(var.launch_template_image_id, data.aws_ami.amazonlinux2.id)
   launch_template_name_prefix               = coalesce(var.launch_template_name_prefix, var.project_name)
   launch_template_iam_instance_profile_name = module.instance_profile.profile_name
-  launch_template_userdata_file_path        = join("/", [path.module, var.launch_template_userdata_file_path])
+  #launch_template_userdata_file_path        = join("/", [path.module, var.launch_template_userdata_file_path])
+  launch_template_userdata_file_path        = try(filebase64("${path.module}/${var.launch_template_userdata_file_path}"), "")
+
 }
+
 
 module "launch_template" {
   source = "./modules/launch-template"
@@ -674,7 +678,7 @@ module "launch_template" {
   volume_type                 = var.launch_template_volume_type
   delete_on_termination       = var.launch_template_delete_on_termination
   enable_monitoring           = var.launch_template_enable_monitoring
-  user_data_file_path         = filebase64(local.launch_template_userdata_file_path)
+  user_data_file_path         = local.launch_template_userdata_file_path
 
   # tag_specifications
   resource_type = var.launch_template_resource_type
@@ -690,7 +694,7 @@ module "launch_template" {
 locals {
   asg_launch_template_name    = module.launch_template.name
   asg_launch_template_version = module.launch_template.latest_version
-  asg_vpc_zone_identifier     = coalesce(module.vpc.public_subnet_id, var.asg_vpc_zone_identifier)
+  asg_vpc_zone_identifier     = coalescelist(module.vpc.public_subnet_id, var.asg_vpc_zone_identifier)
   asg_name                    = coalesce(var.asg_name, join("-", [var.project_name, "asg"]))
   asg_target_group_arns       = module.alb.target_group_arns
 }

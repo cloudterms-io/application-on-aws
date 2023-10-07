@@ -1,4 +1,4 @@
-# Deploy Reference Infrastructure Without RDS Database
+# Deploy Reference Infrastructure Without Elastic File System
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

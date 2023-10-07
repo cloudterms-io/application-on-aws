@@ -14,7 +14,7 @@ module "aws_ref" {
   cidr                      = "10.3.0.0/16"
   azs                       = ["ap-northeast-1a", "ap-northeast-1c"]
   public_subnet_cidr        = ["10.3.0.0/20", "10.3.16.0/20"]
-  private_subnet_cidr       = ["10.3.32.0/20", "10.3.48.0/20"]
+  intra_subnet_cidr         = ["10.3.32.0/20", "10.3.48.0/20"]
   db_subnet_cidr            = ["10.3.64.0/20", "10.3.80.0/20"]
   enable_dns_hostnames      = true
   enable_dns_support        = true
@@ -33,8 +33,10 @@ module "aws_ref" {
   create_rds_sg = true
   rds_sg_name   = "aws-ref-rds-sg"
 
-  create_ssh_sg = true
-  ssh_sg_name   = "aws-ref-ssh-sg"
+  create_ssh_sg    = true
+  ssh_sg_name      = "aws-ref-ssh-sg"
+  ssh_ingress_cidr = ["3.112.23.0/29"]
+
 
   ### Primary Database
   create_primary_database = true

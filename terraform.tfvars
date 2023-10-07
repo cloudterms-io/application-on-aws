@@ -11,7 +11,7 @@ vpc_name                  = "aws-ref-vpc"
 cidr                      = "10.3.0.0/16"
 azs                       = ["ap-northeast-1a", "ap-northeast-1c"]
 public_subnet_cidr        = ["10.3.0.0/20", "10.3.16.0/20"]
-private_subnet_cidr       = ["10.3.32.0/20", "10.3.48.0/20"]
+intra_subnet_cidr         = ["10.3.32.0/20", "10.3.48.0/20"]
 db_subnet_cidr            = ["10.3.64.0/20", "10.3.80.0/20"]
 enable_dns_hostnames      = true
 enable_dns_support        = true
@@ -24,14 +24,15 @@ alb_sg_name   = "aws-ref-alb-sg"
 create_ec2_sg = true
 ec2_sg_name   = "aws-ref-ec2-sg"
 
-create_efs_sg = false
+create_efs_sg = true
 efs_sg_name   = "aws-ref-efs-sg"
 
-create_rds_sg = false
+create_rds_sg = true
 rds_sg_name   = "aws-ref-rds-sg"
 
-create_ssh_sg = true
-ssh_sg_name   = "aws-ref-ssh-sg"
+create_ssh_sg    = true
+ssh_sg_name      = "aws-ref-ssh-sg"
+ssh_ingress_cidr = ["3.112.23.0/29"]
 
 ### Primary Database
 create_primary_database = true # database won't be created
@@ -87,10 +88,10 @@ replica_delete_automated_backups            = true
 replica_skip_final_snapshot                 = true
 
 ### Elastic File System
-efs_create = false
+efs_create = true
 
 efs_name                            = "aws-ref-efs"
-efs_mount_target_subnet_ids         = [] # This will be populated by module.vpc.private_subnet_id
+efs_mount_target_subnet_ids         = [] # This will be populated by module.vpc.intra_subnet_id
 efs_mount_target_security_group_ids = [] # This will be populated by module.efs_sg.security_group_id
 efs_throughput_mode                 = "bursting"
 efs_performance_mode                = "generalPurpose"

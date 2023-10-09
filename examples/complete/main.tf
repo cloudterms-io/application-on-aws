@@ -1,5 +1,5 @@
 # Retriving Account ID
-data "aws_caller_identity" "current" {}
+#data "aws_caller_identity" "current" {}
 
 module "aws_ref" {
   source = "../../"
@@ -182,10 +182,10 @@ EOF
     "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
     "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
   ]
-  instance_profile_custom_policy_arns = [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapan",
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapanAndGlobalServices",
-  ]
+  # instance_profile_custom_policy_arns = [
+  #   "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapan",
+  #   "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapanAndGlobalServices",
+  # ]
 
   ### Auto Scaling
   asg_create                    = true

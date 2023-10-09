@@ -36,7 +36,7 @@ module "aws_ref" {
   ssh_sg_name      = "aws-ref-ssh-sg"
   ssh_ingress_cidr = ["0.0.0.0/0"]
 
-  ### Don't create database on RDS
+  ### Database won't be provisioned
   create_primary_database = false
   create_replica_database = false
 
@@ -56,7 +56,7 @@ module "aws_ref" {
   create_launch_template                 = true
   launch_template_image_id               = "ami-0356afa80291bd6be"
   launch_template_instance_type          = "t2.micro"
-  launch_template_key_name               = "ec2-access"
+  launch_template_key_name               = "ec2-access" # key-pair must be existed on the respective region
   launch_template_update_default_version = true
   launch_template_name_prefix            = "aws-ref"
   launch_template_device_name            = "/dev/xvda"
@@ -88,8 +88,8 @@ module "aws_ref" {
 
   ### ALB - Route5
   create_alb_route53_record = true
-  # If record `name` and `zone_name` not defined here.
-  # Then it will be featched from `ACM-Route53` module.
+
+  # if `record name` and `zone name` is not provided. It will be fetched from `ACM-Route53`
   alb_route53_record_names = [
     "test.kubecloud.net",
     "www.test.kubecloud.net",

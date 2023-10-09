@@ -1,37 +1,69 @@
-# Retriving Account ID
-data "aws_caller_identity" "current" {}
-
-module "vpc" {
-  source  = "shamimice03/vpc/aws"
-  version = "1.2.1"
-
-  create                    = true
-  vpc_name                  = "aws-ref-vpc"
-  cidr                      = "10.5.0.0/16"
-  azs                       = ["ap-northeast-3a", "ap-northeast-3b"]
-  public_subnet_cidr        = ["10.5.0.0/20", "10.5.16.0/20"]
-  intra_subnet_cidr         = ["10.5.32.0/20", "10.5.48.0/20"]
-  db_subnet_cidr            = ["10.5.64.0/20", "10.5.80.0/20"]
-  enable_dns_hostnames      = true
-  enable_dns_support        = true
-  enable_single_nat_gateway = false
-
-  tags = merge(
-    { "VPC_name" = "External-VPC" },
-  )
-}
-
+# existing `vpc` and `subnet` info can be provided like this:
 locals {
-  vpc_id = module.vpc.vpc_id
-  public_subnet_id = module.vpc.public_subnet_id
-  intra_subnet_id = module.vpc.intra_subnet_id
-  db_subnet_id = module.vpc.db_subnet_id
+  vpc_id = "vpc-0d04ecefce33f5303"
+  public_subnet_id = [
+    "subnet-0914d734033a47ea7",
+    "subnet-0e3505b8af912b6fc",
+  ]
+
+  intra_subnet_id = [
+    "subnet-039221c488d974e9e",
+    "subnet-04b62f8d587ed80a1",
+  ]
+
+  db_subnet_id = [
+    "subnet-0385af6e7dd1cb44c",
+    "subnet-089223c210137d902",
+  ]
+
+  alb_sg = [module.alb_sg.security_group_id]
+  ssh_sg = [module.ssh_sg.security_group_id]
 }
+
+# adding external security groups
+# following security group will be merged with the security groups created as part of the `aws_ref` module
+module "alb_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = true
+
+  vpc_id      = local.vpc_id
+  name        = "alb-icmp"
+  description = "alb-icmp access"
+
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["all-icmp"]
+
+  egress_cidr_blocks = ["0.0.0.0/0"]
+  egress_rules       = ["all-icmp"]
+
+}
+
+
+module "ssh_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.0"
+
+  create = true
+
+  vpc_id      = local.vpc_id
+  name        = "ssh-access-from-my-ip"
+  description = "SSH access from my IP"
+
+  ingress_rules       = ["ssh-tcp"]
+  ingress_cidr_blocks = ["60.78.9.38/32"]
+
+  egress_rules       = ["ssh-tcp"]
+  egress_cidr_blocks = ["60.78.9.38/32"]
+}
+
+##################### Main part starts from here #####################
+### Retriving Account ID
+data "aws_caller_identity" "current" {}
 
 module "aws_ref" {
   source = "../../"
-
-  depends_on = [ module.vpc ]
 
   project_name = "aws-ref-architecture"
   general_tags = {
@@ -41,11 +73,8 @@ module "aws_ref" {
   }
 
   ### VPC
-  create_vpc = false
-
-  # Existing vpc id
+  create_vpc = false # VPC won't created as part of this module
   vpc_id     = local.vpc_id
-  #vpc_id     = module.vpc.vpc_id
 
   ### Security Groups
   create_alb_sg = true
@@ -60,16 +89,16 @@ module "aws_ref" {
   create_rds_sg = true
   rds_sg_name   = "aws-ref-rds-sg"
 
-  create_ssh_sg = true
-  ssh_sg_name   = "aws-ref-ssh-sg"
-  ssh_ingress_cidr = [ "0.0.0.0/0" ]
+  create_ssh_sg    = true
+  ssh_sg_name      = "aws-ref-ssh-sg"
+  ssh_ingress_cidr = ["15.168.105.160/29"]
 
   ### Primary Database
-  create_primary_database = true # database won't be created
+  create_primary_database             = true
   db_identifier                       = "aws-ref-db"
   create_db_subnet_group              = true
   db_subnet_group_name                = "aws-ref-db-subnet"
-  db_subnets                          = local.db_subnet_id
+  db_subnets                          = local.db_subnet_id # on existing db subnet
   db_name                             = "userlist"
   db_master_username                  = "admin"
   multi_az                            = false
@@ -80,7 +109,6 @@ module "aws_ref" {
   storage_type                        = "gp2"
   allocated_storage                   = "20"
   max_allocated_storage               = "20"
-  db_security_groups                  = [] # This will be populated by module.rds_sg.security_group_id
   publicly_accessible                 = false
   database_port                       = 3306
   backup_retention_period             = 7
@@ -95,8 +123,10 @@ module "aws_ref" {
 
   ### Replica Database
   create_replica_database = true
-  replica_db_identifier                       = "aws-ref-db-replica"
-  replica_multi_az                            = false
+  replica_db_identifier   = "aws-ref-db-replica"
+  replica_multi_az        = false
+
+  # following inputs can be skipped. If skipped, settings will be inherited from Primary Database
   replica_db_availability_zone                = "ap-northeast-3b"
   replica_engine                              = "mysql"
   replica_engine_version                      = "8.0"
@@ -116,13 +146,12 @@ module "aws_ref" {
   replica_skip_final_snapshot                 = true
 
   ### Elastic File System
-  efs_create = true
-  efs_name                            = "aws-ref-efs"
-  efs_mount_target_subnet_ids         = local.intra_subnet_id # This will be populated by module.vpc.intra_subnet_id
-  efs_mount_target_security_group_ids = [] # This will be populated by module.efs_sg.security_group_id
-  efs_throughput_mode                 = "bursting"
-  efs_performance_mode                = "generalPurpose"
-  efs_transition_to_ia                = "AFTER_30_DAYS"
+  efs_create                  = true
+  efs_name                    = "aws-ref-efs"
+  efs_mount_target_subnet_ids = local.intra_subnet_id # on existing intra subnet
+  efs_throughput_mode         = "bursting"
+  efs_performance_mode        = "generalPurpose"
+  efs_transition_to_ia        = "AFTER_30_DAYS"
 
   ### Parameters
   create_primary_db_parameters = false
@@ -131,12 +160,11 @@ module "aws_ref" {
 
   ### Launch Template
   create_launch_template                 = true
-  launch_template_image_id               = "ami-06a5510b6aff4e358" 
+  launch_template_image_id               = "ami-06a5510b6aff4e358"
   launch_template_instance_type          = "t3.micro"
-  launch_template_key_name               = "ec2-access"  # must be existed
-  launch_template_sg_ids                 = [] # This will be populated by [module.ec2_sg.security_group_id, module.ssh_sg.security_group_id]
+  launch_template_key_name               = "ec2-access" # key-pair must be existed on the respective region
+  launch_template_sg_ids                 = local.ssh_sg # adding external SSH security group
   launch_template_update_default_version = true
-  launch_template_name_prefix            = "aws-ref"
   launch_template_device_name            = "/dev/xvda"
   launch_template_volume_size            = 20
   launch_template_volume_type            = "gp2"
@@ -162,14 +190,15 @@ module "aws_ref" {
   create_lb                       = true
   alb_name_prefix                 = "awsref"
   load_balancer_type              = "application"
-  alb_subnets                     = local.public_subnet_id # This will be populated by module.vpc.public_subnet_id,
-  alb_security_groups             = [] # This will be populated by module.alb_sg.security_group_id
+  alb_subnets                     = local.public_subnet_id # on existing public subnet
+  alb_security_groups             = local.alb_sg           # adding external ALB security group
   alb_target_group_name_prefix    = "ref-tg"
   alb_acm_certificate_domain_name = "fun.kubecloud.net"
 
   ### ALB - Route5
   create_alb_route53_record = true
-  # if record name and zone name not given. It will featch it from `ACM-Route53 Module`
+
+  # if `record name` and `zone name` is not provided. It will be fetched from `ACM-Route53`
   alb_route53_record_names = [
     "fun.kubecloud.net",
     "www.fun.kubecloud.net",
@@ -202,7 +231,7 @@ EOF
   create_instance_profile                = true
   instance_profile_role_name             = "aws-ref-instance-role"
   instance_profile_instance_profile_name = "aws-ref-instance-role"
-  instance_profile_role_path = "/"
+  instance_profile_role_path             = "/"
   instance_profile_managed_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
@@ -217,7 +246,7 @@ EOF
   ### Auto Scaling
   asg_create                    = true
   asg_name                      = "aws-ref-asg"
-  asg_vpc_zone_identifier       = local.public_subnet_id # This will be populated by module.vpc.public_subnet_id
+  asg_vpc_zone_identifier       = local.public_subnet_id # on existing public subnet
   asg_desired_capacity          = 2
   asg_min_size                  = 2
   asg_max_size                  = 4
@@ -225,5 +254,4 @@ EOF
   asg_health_check_type         = "ELB"
   asg_health_check_grace_period = 300
   asg_enable_monitoring         = true
-
 }

@@ -1,3 +1,6 @@
+# Retriving Account ID
+data "aws_caller_identity" "current" {}
+
 module "aws_ref" {
   source = "../../"
 
@@ -12,7 +15,7 @@ module "aws_ref" {
   create_vpc                = true
   vpc_name                  = "aws-ref-vpc"
   cidr                      = "10.3.0.0/16"
-  azs                       = ["ap-northeast-1a", "ap-northeast-1c"]
+  azs                       = ["us-east-1a", "us-east-1b"]
   public_subnet_cidr        = ["10.3.0.0/20", "10.3.16.0/20"]
   intra_subnet_cidr         = ["10.3.32.0/20", "10.3.48.0/20"]
   db_subnet_cidr            = ["10.3.64.0/20", "10.3.80.0/20"]
@@ -39,23 +42,20 @@ module "aws_ref" {
 
 
   ### Primary Database
-  create_primary_database = true
-
+  create_primary_database             = true
   db_identifier                       = "aws-ref-db"
   create_db_subnet_group              = true
   db_subnet_group_name                = "aws-ref-db-subnet"
-  db_subnets                          = [] # This will be populated by module.vpc.db_subnet_id
   db_name                             = "userlist"
   db_master_username                  = "admin"
   multi_az                            = false
-  master_db_availability_zone         = "ap-northeast-1a"
+  master_db_availability_zone         = "us-east-1a"
   engine                              = "mysql"
   engine_version                      = "8.0"
   instance_class                      = "db.t3.micro"
   storage_type                        = "gp2"
   allocated_storage                   = "20"
   max_allocated_storage               = "20"
-  db_security_groups                  = [] # This will be populated by module.rds_sg.security_group_id
   publicly_accessible                 = false
   database_port                       = 3306
   backup_retention_period             = 7
@@ -72,33 +72,33 @@ module "aws_ref" {
   create_replica_database      = true
   replica_db_identifier        = "aws-ref-db-replica"
   replica_multi_az             = false
-  replica_db_availability_zone = "ap-northeast-1c"
-  # replica_engine                              = "mysql"
-  # replica_engine_version                      = "8.0"
-  # replica_instance_class                      = "db.t3.micro"
-  # replica_storage_type                        = "gp2"
-  # replica_max_allocated_storage               = "20"
-  # replica_publicly_accessible                 = false
-  # replica_database_port                       = 3306
-  # replica_backup_retention_period             = 7
-  # replica_backup_window                       = "03:00-05:00"
-  # replica_maintenance_window                  = "Sat:05:00-Sat:07:00"
-  # replica_deletion_protection                 = false
-  # replica_iam_database_authentication_enabled = false
-  # replica_enabled_cloudwatch_logs_exports     = ["audit", "error"]
-  # replica_apply_immediately                   = true
-  # replica_delete_automated_backups            = true
-  # replica_skip_final_snapshot                 = true
+  replica_db_availability_zone = "us-east-1b"
+
+  # following inputs can be skipped. If skipped, settings will be inherited from Primary Database
+  replica_engine                              = "mysql"
+  replica_engine_version                      = "8.0"
+  replica_instance_class                      = "db.t3.micro"
+  replica_storage_type                        = "gp2"
+  replica_max_allocated_storage               = "20"
+  replica_publicly_accessible                 = false
+  replica_database_port                       = 3306
+  replica_backup_retention_period             = 7
+  replica_backup_window                       = "03:00-05:00"
+  replica_maintenance_window                  = "Sat:05:00-Sat:07:00"
+  replica_deletion_protection                 = false
+  replica_iam_database_authentication_enabled = false
+  replica_enabled_cloudwatch_logs_exports     = ["audit", "error"]
+  replica_apply_immediately                   = true
+  replica_delete_automated_backups            = true
+  replica_skip_final_snapshot                 = true
 
   ### Elastic File System
-  efs_create                          = true
-  efs_name                            = "aws-ref-efs"
-  efs_mount_target_subnet_ids         = [] # This will be populated by module.vpc.private_subnet_id
-  efs_mount_target_security_group_ids = [] # This will be populated by module.efs_sg.security_group_id
-  efs_encrypted                       = true
-  efs_throughput_mode                 = "bursting"
-  efs_performance_mode                = "generalPurpose"
-  efs_transition_to_ia                = "AFTER_30_DAYS"
+  efs_create           = true
+  efs_name             = "aws-ref-efs"
+  efs_encrypted        = true
+  efs_throughput_mode  = "bursting"
+  efs_performance_mode = "generalPurpose"
+  efs_transition_to_ia = "AFTER_30_DAYS"
 
   ### Parameters
   create_primary_db_parameters = true
@@ -107,20 +107,18 @@ module "aws_ref" {
 
   ### Launch Template
   create_launch_template                 = true
-  launch_template_image_id               = "" # This will be populated by data.aws_ami.amazonlinux2.id
+  launch_template_image_id               = "ami-0bb4c991fa89d4b9b" # If not provided, default AMI will be amazonlinux2 of ap-notheast-1
   launch_template_instance_type          = "t2.micro"
-  launch_template_key_name               = "ec2-access"
-  launch_template_sg_ids                 = [] # This will be populated by [module.ec2_sg.security_group_id, module.ssh_sg.security_group_id]
+  launch_template_key_name               = "ec2-access" # key-pair must be existed on the respective region
   launch_template_update_default_version = true
   launch_template_name_prefix            = "aws-ref"
   launch_template_device_name            = "/dev/xvda"
-  launch_template_volume_size            = 20
+  launch_template_volume_size            = 10
   launch_template_volume_type            = "gp2"
   launch_template_delete_on_termination  = true
   launch_template_enable_monitoring      = false
-  launch_template_userdata_file_path     = "userdata.sh"
+  launch_template_userdata_file_path     = "examples/complete/init.sh"
   launch_template_resource_type          = "instance"
-
 
   ### ACM - Route53
   create_certificates = true
@@ -138,14 +136,13 @@ module "aws_ref" {
   create_lb                       = true
   alb_name_prefix                 = "awsref"
   load_balancer_type              = "application"
-  alb_subnets                     = [] # This will be populated by module.vpc.public_subnet_id,
-  alb_security_groups             = [] # This will be populated by module.alb_sg.security_group_id
   alb_target_group_name_prefix    = "ref-tg"
   alb_acm_certificate_domain_name = "test.kubecloud.net"
 
   ### ALB - Route5
   create_alb_route53_record = true
-  # if record name and zone name not given. It will featch it from `ACM-Route53 Module`
+
+  # if `record name` and `zone name` is not provided. It will be fetched from `ACM-Route53`
   alb_route53_record_names = [
     "test.kubecloud.net",
     "www.test.kubecloud.net",
@@ -178,6 +175,7 @@ EOF
   create_instance_profile                = true
   instance_profile_role_name             = "aws-ref-instance-role"
   instance_profile_instance_profile_name = "aws-ref-instance-role"
+  instance_profile_role_path             = "/"
   instance_profile_managed_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
@@ -185,15 +183,13 @@ EOF
     "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
   ]
   instance_profile_custom_policy_arns = [
-    "arn:aws:iam::391178969547:policy/AllowFromJapan",
-    "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices",
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapan",
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/AllowFromJapanAndGlobalServices",
   ]
-  instance_profile_role_path = "/"
 
   ### Auto Scaling
   asg_create                    = true
   asg_name                      = "aws-ref-asg"
-  asg_vpc_zone_identifier       = [] # This will be populated by module.vpc.public_subnet_id
   asg_desired_capacity          = 2
   asg_min_size                  = 2
   asg_max_size                  = 4

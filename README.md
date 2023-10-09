@@ -187,6 +187,7 @@
 | <a name="input_ssh_ingress_cidr"></a> [ssh\_ingress\_cidr](#input\_ssh\_ingress\_cidr) | List of CIDR blocks allowed to SSH into the EC2 instances | `list(any)` | `[]` | no |
 | <a name="input_ssh_sg_name"></a> [ssh\_sg\_name](#input\_ssh\_sg\_name) | Name of the SSH security group | `string` | `"aws-ref-ssh-sg"` | no |
 | <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | Storage type for the RDS instance | `string` | `"gp2"` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | Id of the VPC.Required while provisioning on an existing VPC | `string` | `""` | no |
 | <a name="input_vpc_name"></a> [vpc\_name](#input\_vpc\_name) | Name of the VPC | `string` | `"aws-ref-arch-vpc"` | no |
 
 ## Outputs

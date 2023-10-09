@@ -42,19 +42,13 @@ locals {
   efs_sg_name = coalesce(var.efs_sg_name, "efs-sg")
   rds_sg_name = coalesce(var.rds_sg_name, "rds-sg")
   ssh_sg_name = coalesce(var.ssh_sg_name, "ssh-sg")
-
-  create_alb_sg = var.create_alb_sg
-  create_ec2_sg = var.create_ec2_sg
-  create_efs_sg = var.create_efs_sg
-  create_rds_sg = var.create_rds_sg
-  create_ssh_sg = var.create_ssh_sg
 }
 
 module "alb_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  create = local.create_alb_sg
+  create = var.create_alb_sg
 
   vpc_id      = local.vpc_id
   name        = local.alb_sg_name
@@ -71,7 +65,7 @@ module "ec2_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  create = local.create_ec2_sg
+  create = var.create_ec2_sg
 
   vpc_id      = local.vpc_id
   name        = local.ec2_sg_name
@@ -92,7 +86,7 @@ module "efs_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  create = local.create_efs_sg
+  create = var.create_efs_sg
 
   vpc_id      = local.vpc_id
   name        = local.efs_sg_name
@@ -117,7 +111,7 @@ module "rds_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  create = local.create_rds_sg
+  create = var.create_rds_sg
 
   vpc_id      = local.vpc_id
   name        = local.rds_sg_name
@@ -142,7 +136,7 @@ module "ssh_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.0"
 
-  create = local.create_ssh_sg
+  create = var.create_ssh_sg
 
   vpc_id      = local.vpc_id
   name        = local.ssh_sg_name
@@ -160,6 +154,8 @@ module "ssh_sg" {
 ##################################################
 locals {
   rds_security_groups = [module.rds_sg.security_group_id]
+  db_subnets          = try(coalescelist(module.vpc.db_subnet_id, var.db_subnets), [])
+  db_security_groups  = concat(local.rds_security_groups, var.db_security_groups)
 }
 
 module "rds" {
@@ -170,7 +166,7 @@ module "rds" {
 
   create_db_subnet_group = var.create_db_subnet_group
   db_subnet_group_name   = var.db_subnet_group_name
-  db_subnets             = coalescelist(module.vpc.db_subnet_id, var.db_subnets)
+  db_subnets             = local.db_subnets
 
   # Identify DB instance
   db_identifier = var.db_identifier
@@ -200,7 +196,7 @@ module "rds" {
   max_allocated_storage = var.max_allocated_storage
 
   # Connectivity
-  db_security_groups  = coalescelist(local.rds_security_groups, var.db_security_groups)
+  db_security_groups  = local.db_security_groups
   publicly_accessible = var.publicly_accessible
   database_port       = var.database_port
 
@@ -248,7 +244,7 @@ module "rds_replica" {
   iam_database_authentication_enabled = try(coalesce(var.replica_iam_database_authentication_enabled, var.iam_database_authentication_enabled), "")
   storage_type                        = try(coalesce(var.replica_storage_type, var.storage_type), "")
   max_allocated_storage               = try(coalesce(var.replica_max_allocated_storage, var.max_allocated_storage), "")
-  db_security_groups                  = try(coalescelist(local.rds_security_groups, var.db_security_groups), [])
+  db_security_groups                  = concat(local.rds_security_groups, var.db_security_groups)
   publicly_accessible                 = try(coalesce(var.replica_publicly_accessible, var.publicly_accessible), "")
   database_port                       = try(coalesce(var.replica_database_port, var.database_port), "")
   backup_retention_period             = try(coalesce(var.replica_backup_retention_period, var.backup_retention_period), "")
@@ -410,11 +406,10 @@ module "replica_db_parameters" {
 #   Elastic File System
 ##################################################
 locals {
-  efs_mount_target_subnet_ids         = coalescelist(module.vpc.intra_subnet_id, var.efs_mount_target_subnet_ids)
-  efs_mount_target_security_group_ids = coalescelist([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
-  efs_mount_target_subnet_count       = length(coalesce(var.intra_subnet_cidr, var.efs_mount_target_subnet_ids))
+  efs_mount_target_subnet_ids         = try(coalescelist(module.vpc.intra_subnet_id, var.efs_mount_target_subnet_ids), [])
+  efs_mount_target_security_group_ids = concat([module.efs_sg.security_group_id], var.efs_mount_target_security_group_ids)
+  efs_mount_target_subnet_count       = length(try(coalescelist(var.intra_subnet_cidr, var.efs_mount_target_subnet_ids), []))
 }
-
 
 module "efs" {
   source = "./modules/efs"
@@ -496,7 +491,7 @@ data "aws_acm_certificate" "issued" {
 
 locals {
   alb_subnets                  = coalescelist(module.vpc.public_subnet_id, var.alb_subnets)
-  alb_security_groups          = coalescelist([module.alb_sg.security_group_id], var.alb_security_groups)
+  alb_security_groups          = concat([module.alb_sg.security_group_id], var.alb_security_groups)
   alb_name_prefix              = coalesce(var.alb_name_prefix, "refalb")
   alb_target_group_name_prefix = coalesce(var.alb_target_group_name_prefix, "ref-tg")
   alb_certificate_arn          = data.aws_acm_certificate.issued[0].arn
@@ -651,13 +646,11 @@ data "aws_ami" "amazonlinux2" {
 }
 
 locals {
-  launch_template_sg_ids                    = coalescelist([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id], var.launch_template_sg_ids)
+  launch_template_sg_ids                    = concat(concat([module.ec2_sg.security_group_id, module.ssh_sg.security_group_id]), var.launch_template_sg_ids)
   launch_template_image_id                  = coalesce(var.launch_template_image_id, data.aws_ami.amazonlinux2.id)
   launch_template_name_prefix               = coalesce(var.launch_template_name_prefix, var.project_name)
   launch_template_iam_instance_profile_name = module.instance_profile.profile_name
-  #launch_template_userdata_file_path        = join("/", [path.module, var.launch_template_userdata_file_path])
   launch_template_userdata_file_path        = try(filebase64("${path.module}/${var.launch_template_userdata_file_path}"), "")
-
 }
 
 
@@ -704,7 +697,6 @@ module "asg" {
   version = "6.10.0"
 
   create = var.asg_create && var.create_launch_template
-  # Do not create launch template using asg module.
   # `launch template` created separately using `launch template` module
   create_launch_template = false
 

@@ -37,7 +37,7 @@ module "aws_ref" {
   ssh_ingress_cidr = ["3.112.23.0/29"]
 
   ### Primary Database
-  create_primary_database = true 
+  create_primary_database             = true
   db_identifier                       = "aws-ref-db"
   create_db_subnet_group              = true
   db_subnet_group_name                = "aws-ref-db-subnet"
@@ -77,7 +77,7 @@ module "aws_ref" {
   ### Launch Template
   create_launch_template                 = true
   launch_template_instance_type          = "t2.micro"
-  launch_template_key_name               = "ec2-access"
+  launch_template_key_name               = "ec2-access" # key-pair must be existed on the respective region
   launch_template_update_default_version = true
   launch_template_name_prefix            = "aws-ref"
   launch_template_device_name            = "/dev/xvda"
@@ -86,8 +86,7 @@ module "aws_ref" {
   launch_template_delete_on_termination  = true
   launch_template_enable_monitoring      = false
   launch_template_userdata_file_path     = "/examples/without-efs/init.sh"
-  launch_template_resource_type = "instance"
-
+  launch_template_resource_type          = "instance"
 
   ### ACM - Route53
   create_certificates = true
@@ -110,7 +109,8 @@ module "aws_ref" {
 
   ### ALB - Route5
   create_alb_route53_record = true
-  # if record name and zone name not given. It will featch it from `ACM-Route53 Module`
+
+  # if `record name` and `zone name` is not provided. It will be fetched from `ACM-Route53`
   alb_route53_record_names = [
     "app.kubecloud.net",
     "www.app.kubecloud.net",

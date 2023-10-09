@@ -26,7 +26,7 @@ resource "aws_launch_template" "this" {
   monitoring {
     enabled = var.enable_monitoring
   }
-  
+
   user_data = var.user_data_file_path
 
   tag_specifications {

@@ -5,7 +5,7 @@ repos:
       # - id: infracost_breakdown
       #   args:
       #     - --args=--path=./
-        verbose: true
+      #   verbose: true
       - id: terraform_fmt
       - id: terraform_validate
       - id: terraform_docs

@@ -72,7 +72,7 @@ jobs:
      - name: pre-commit on TF ${{ steps.minMax.outputs.maxVersion }}
        uses: clowdhaus/terraform-composite-actions/pre-commit@v1.8.3
        with:
-         terraform-version: ${{ steps.minMax.outputs.maxVersion }}
+         terraform-version: "1.5.7"
          tflint-version: ${{ env.TFLINT_VERSION }}
          terraform-docs-version: ${{ env.TERRAFORM_DOCS_VERSION }}
          install-hcledit: true

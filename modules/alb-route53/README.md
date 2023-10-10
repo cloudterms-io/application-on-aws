@@ -3,8 +3,8 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.17.0 |
 
 ## Providers
 
@@ -20,8 +20,8 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_route53_record.record](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
-| [aws_route53_zone.selected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
+| [aws_route53_record.record](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/resources/route53_record) | resource |
+| [aws_route53_zone.selected](https://registry.terraform.io/providers/hashicorp/aws/5.17.0/docs/data-sources/route53_zone) | data source |
 
 ## Inputs
 

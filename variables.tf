@@ -22,6 +22,12 @@ variable "create_vpc" {
   default     = true
 }
 
+variable "vpc_id" {
+  description = "Id of the VPC.Required while provisioning on an existing VPC"
+  type        = string
+  default     = ""
+}
+
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -31,31 +37,37 @@ variable "vpc_name" {
 variable "cidr" {
   description = "CIDR block for the VPC"
   type        = string
-  default     = "10.3.0.0/16"
+  default     = ""
 }
 
 variable "azs" {
   description = "Availability Zones for subnets"
   type        = list(string)
-  default     = ["ap-northeast-1a", "ap-northeast-1c"]
+  default     = []
 }
 
 variable "public_subnet_cidr" {
   description = "CIDR blocks for public subnets"
   type        = list(string)
-  default     = ["10.3.0.0/20", "10.3.16.0/20"]
+  default     = []
 }
 
-variable "private_subnet_cidr" {
-  description = "CIDR blocks for private subnets"
+# variable "private_subnet_cidr" {
+#   description = "CIDR blocks for private subnets"
+#   type        = list(string)
+#   default     = []
+# }
+
+variable "intra_subnet_cidr" {
+  description = "CIDR blocks for intra subnets. Used as EFS subnets"
   type        = list(string)
-  default     = ["10.3.32.0/20", "10.3.48.0/20"]
+  default     = []
 }
 
 variable "db_subnet_cidr" {
   description = "CIDR blocks for database subnets"
   type        = list(string)
-  default     = ["10.3.64.0/20", "10.3.80.0/20"]
+  default     = []
 }
 
 variable "enable_dns_hostnames" {
@@ -80,7 +92,7 @@ variable "enable_single_nat_gateway" {
 variable "create_alb_sg" {
   description = "Whether to create the Application Load Balancer (ALB) security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "alb_sg_name" {
@@ -92,7 +104,7 @@ variable "alb_sg_name" {
 variable "create_ec2_sg" {
   description = "Whether to create the EC2 instance security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "ec2_sg_name" {
@@ -104,7 +116,7 @@ variable "ec2_sg_name" {
 variable "create_efs_sg" {
   description = "Whether to create the Elastic File System (EFS) security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "efs_sg_name" {
@@ -116,7 +128,7 @@ variable "efs_sg_name" {
 variable "create_rds_sg" {
   description = "Whether to create the RDS security group."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "rds_sg_name" {
@@ -126,15 +138,21 @@ variable "rds_sg_name" {
 }
 
 variable "create_ssh_sg" {
-  description = "Whether to create the SSH security group."
+  description = "Whether to create the SSH security group"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "ssh_sg_name" {
   description = "Name of the SSH security group"
   type        = string
   default     = "aws-ref-ssh-sg"
+}
+
+variable "ssh_ingress_cidr" {
+  description = "List of CIDR blocks allowed to SSH into the EC2 instances"
+  type        = list(any)
+  default     = []
 }
 
 ######################## Primary Database ###########################
@@ -171,13 +189,13 @@ variable "db_subnets" {
 variable "db_name" {
   description = "Name of the initial database"
   type        = string
-  default     = "userlist"
+  default     = ""
 }
 
 variable "db_master_username" {
   description = "Master username for the RDS instance"
   type        = string
-  default     = "admin"
+  default     = ""
 }
 
 variable "iam_database_authentication_enabled" {
@@ -195,7 +213,7 @@ variable "multi_az" {
 variable "master_db_availability_zone" {
   description = "Availability zone for the RDS instance"
   type        = string
-  default     = "ap-northeast-1a"
+  default     = ""
 }
 
 variable "engine" {
@@ -277,7 +295,7 @@ variable "deletion_protection" {
 }
 
 variable "enabled_cloudwatch_logs_exports" {
-  description = "List of CloudWatch logs to export for the RDS instance"
+  description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported. Valid values (depending on engine). MySQL and MariaDB: audit, error, general, slowquery. PostgreSQL: postgresql, upgrade. MSSQL: agent , error. Oracle: alert, audit, listener, trace."
   type        = list(string)
   default     = ["audit", "error"]
 }
@@ -321,7 +339,7 @@ variable "replica_multi_az" {
 variable "replica_db_availability_zone" {
   description = "Availability zone for the RDS replica instance"
   type        = string
-  default     = "ap-northeast-1c"
+  default     = ""
 }
 
 variable "replica_engine" {
@@ -397,7 +415,7 @@ variable "replica_iam_database_authentication_enabled" {
 }
 
 variable "replica_enabled_cloudwatch_logs_exports" {
-  description = "List of CloudWatch logs to export for the RDS replica instance"
+  description = "Set of log types to enable for exporting to CloudWatch logs. If omitted, no logs will be exported. Valid values (depending on engine). MySQL and MariaDB: audit, error, general, slowquery. PostgreSQL: postgresql, upgrade. MSSQL: agent , error. Oracle: alert, audit, listener, trace."
   type        = list(string)
   default     = []
 }
@@ -431,7 +449,7 @@ variable "efs_create" {
 variable "efs_name" {
   description = "Name of the Elastic File System"
   type        = string
-  default     = "aws-ref-arch-efs"
+  default     = ""
 }
 
 variable "efs_mount_target_subnet_ids" {
@@ -511,7 +529,7 @@ variable "launch_template_instance_type" {
 variable "launch_template_key_name" {
   description = "The name of the SSH key pair to associate with instances launched from the template"
   type        = string
-  default     = "ec2-access"
+  default     = ""
 }
 
 variable "launch_template_update_default_version" {
@@ -565,7 +583,7 @@ variable "launch_template_enable_monitoring" {
 variable "launch_template_userdata_file_path" {
   description = "Path to the user data script file"
   type        = string
-  default     = "userdata.sh"
+  default     = ""
 }
 
 variable "launch_template_resource_type" {
@@ -596,7 +614,7 @@ variable "acm_validation_method" {
 variable "acm_hosted_zone_name" {
   description = "Hosted zone name for DNS validation"
   type        = string
-  default     = "kubecloud.net"
+  default     = ""
 }
 
 variable "acm_private_zone" {
@@ -670,7 +688,7 @@ variable "create_alb_route53_record" {
 variable "alb_route53_zone_name" {
   description = "The DNS zone name"
   type        = string
-  default     = "kubecloud.net"
+  default     = ""
 }
 
 variable "alb_route53_record_names" {
@@ -707,13 +725,13 @@ variable "alb_route53_allow_record_overwrite" {
 variable "create_custom_policy" {
   description = "Whether to create custom policy"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "custom_iam_policy_name_prefix" {
   description = "Prefix for the IAM policy name. Required if `create_custom_policy` set to `true`"
   type        = string
-  default     = "ListAllS3Buckets"
+  default     = ""
 }
 
 variable "custom_iam_policy_path" {
@@ -725,24 +743,13 @@ variable "custom_iam_policy_path" {
 variable "custom_iam_policy_description" {
   description = "Description for the IAM policy. Required if `create_custom_policy` set to `true`"
   type        = string
-  default     = "List all s3 buckets"
+  default     = "custom policy"
 }
 
 variable "custom_iam_policy_json" {
   description = "JSON policy document. Required if `create_custom_policy` set to `true`"
   type        = string
-  default     = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListAllMyBuckets",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
+  default     = ""
 }
 
 ######################## IAM Instance Profile ########################
@@ -761,27 +768,19 @@ variable "instance_profile_role_name" {
 variable "instance_profile_instance_profile_name" {
   description = "Name of the IAM instance profile"
   type        = string
-  default     = "aws-ref-instance-role"
+  default     = ""
 }
 
 variable "instance_profile_managed_policy_arns" {
   description = "List of ARNs of managed policies to attach to the role"
   type        = list(string)
-  default = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy",
-  ]
+  default     = []
 }
 
 variable "instance_profile_custom_policy_arns" {
   description = "List of ARNs of custom policies(created outside of this project) to attach to the role"
   type        = list(string)
-  default = [
-    "arn:aws:iam::391178969547:policy/AllowFromJapan",
-    "arn:aws:iam::391178969547:policy/AllowFromJapanAndGlobalServices",
-  ]
+  default     = []
 }
 
 variable "instance_profile_role_path" {
@@ -792,7 +791,7 @@ variable "instance_profile_role_path" {
 
 ######################## AutoScaling Group  ########################
 variable "asg_create" {
-  description = "Whether to create asg or not"
+  description = "Whether to create asg or not. asg dependent on `Launch Template`"
   type        = bool
   default     = true
 }
@@ -812,19 +811,19 @@ variable "asg_vpc_zone_identifier" {
 variable "asg_desired_capacity" {
   description = "Desired capacity of the Auto Scaling Group"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "asg_min_size" {
   description = "Minimum size of the Auto Scaling Group"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "asg_max_size" {
   description = "Maximum size of the Auto Scaling Group"
   type        = number
-  default     = 4
+  default     = 2
 }
 
 variable "asg_wait_for_capacity_timeout" {

@@ -1,4 +1,4 @@
-# Deploy Reference Infrastructure Without RDS Database
+# in-your-vpc
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -18,7 +18,9 @@
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_alb_sg"></a> [alb\_sg](#module\_alb\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
 | <a name="module_aws_ref"></a> [aws\_ref](#module\_aws\_ref) | ../../ | n/a |
+| <a name="module_ssh_sg"></a> [ssh\_sg](#module\_ssh\_sg) | terraform-aws-modules/security-group/aws | 5.1.0 |
 
 ## Resources
 

@@ -1,11 +1,11 @@
-# Deploy Reference Infrastructure Without RDS Database
+# Deploy Reference Infrastructure Without Elastic File System
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0, < 1.6.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >=1.3.0, < 1.6.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.17.0 |
 
 ## Providers

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0](https://github.com/shamimice03/aws-reference-architecture-v1/compare/v0.2.0...v0.3.0) (2023-10-10)
+
+
+### Features
+
+* **updated-version:** updated required version ([c2596ed](https://github.com/shamimice03/aws-reference-architecture-v1/commit/c2596edfb830613302190ad1e3b69513447cec85))
+
 ## [0.2.0](https://github.com/shamimice03/aws-ref-architecture/compare/v0.1.2...v0.2.0) (2023-09-19)
 
 
